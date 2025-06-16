@@ -1,54 +1,100 @@
-# React + TypeScript + Vite
+# Monty Hall Learning Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive educational platform for exploring the Monty Hall problem and its many variants. The platform supports simulations with different types of Monty behaviors, user interaction, and data collection for research and educational purposes.
 
-Currently, two official plugins are available:
+Planned deployment: https://monty.bram-hub.com
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## Overview
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+This project provides an interface for simulating and analyzing variations of the Monty Hall game show problem. It plans to supports:
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- Interactive single game play
+- Iterative simulations under controlled conditions
+- Configurable Monty behaviors (Standard, Evil, Secretive, custom, etc.)
+- Basic player strategies
+- Data collection for cognitive psychology research
+- Educational content and mathematical explanations
+
+---
+
+## Technologies Used
+
+- React with TypeScript (frontend)
+- Vite (build tool)
+- Supabase (PostgreSQL database and API; for data collection)
+- Vercel (frontend deployment platform)
+- AWS Route53 and CDK (subdomain and DNS configuration)
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/   # Reusable UI elements
+├── pages/        # Views like PlayPage, ResearchPage, EducationPage
+├── logic/        # Game engine and Monty behavior logic
+├── supabase/     # Database logic
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Running the Project Locally
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+### Prerequisites
+
+- Node.js (v18 or later)
+
+### Setup Instructions
+
+```bash
+git clone repo
+cd monty-hall
+npm install
+npm run dev
 ```
+
+Then open your browser to the localhost link given
+
+---
+
+## Project Goals
+
+- Enable interactive exploration of probability and decision theory
+- Demonstrate the impact of different Monty behaviors
+- Support simulations with configurable parameters
+- Collect structured gameplay data for research analysis
+- Provide educational explanations from both intuitive and formal perspectives
+
+---
+
+## Planned Features
+
+- Supabase integration for backend data storage
+- Custom Monty and player strategy builders
+- Data visualization with charts and graphs
+- Research dashboard with aggregated statistics
+- Comprehensive education section 
+
+---
+
+## Background
+
+The Monty Hall problem is a well known probability puzzle where the counterintuitive nature of the correct strategy (to switch doors) makes it a widely discussed topic in statistics and cognitive science. This platform explores the classical problem and its many variants.
+
+More information: [Monty Hall problem on Wikipedia](https://en.wikipedia.org/wiki/Monty_Hall_problem)
+
+---
+
+## Maintainers
+
+- Project Lead: Professor Bram (bram-hub.com)
+- Developer: [Kyle-J13](https://github.com/Kyle-J13)
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.

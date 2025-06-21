@@ -1,56 +1,44 @@
-// src/pages/PlayPage.tsx
+// src/pages/SandboxPlayPage.tsx
 
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import DoorButton from '../components/DoorButton';
 import type { DoorStatus } from '../components/DoorButton';
-import type { Door, GameState } from '../logic/types';
+import type { Door, GameState, MontyType } from '../logic/types';
 import { defaultDoors } from '../logic/types';
-import {
-  pickPrizeDoor,
-  pickRandomMontyType,
-  montyOpensDoor
-} from '../logic/montyEngine';
+import { pickPrizeDoor, montyOpensDoor } from '../logic/montyEngine';
 
-interface PlayState extends GameState {
-  choosingSwitch: boolean; // true when user clicked “Switch” under secretive Monty
+interface SandboxState extends GameState {
+  choosingSwitch: boolean;  // true when user clicked "Switch" under secretive Monty
 }
 
-/**
- * PlayPage – classic Monty Hall game for data collection.
- * MontyType is chosen randomly but never shown to the user.
- * Flow:
- *   1. User picks a door.
- *   2. Monty (random behavior) opens or not.
- *   3. Prompt “Switch or Stay?” for all behaviors.
- *      • Stay: finalize original pick.
- *      • Switch:
- *         – Standard/Evil: automatically switch to the only other door.
- *         – Secretive: enter second selection mode to choose among the two remaining doors.
- *   4. Reveal all doors and show prize.
- */
-export default function PlayPage() {
-  // Initialize with random prize and random Monty behavior
-  const [state, setState] = useState<PlayState>({
+export default function SandboxPlayPage() {
+  const [search] = useSearchParams();
+  const montyParam = (search.get('monty') as MontyType) || 'standard';
+
+  // Initialize state including the new choosingSwitch flag
+  const [state, setState] = useState<SandboxState>({
     prizeDoor: pickPrizeDoor(),
     playerPick: null,
     montyOpens: null,
     switchOffered: false,
     finalPick: null,
     result: null,
-    montyType: pickRandomMontyType(),
+    montyType: montyParam,
     choosingSwitch: false,
   });
 
-  /** Handle initial selection */
+  /** Handle the player's initial door selection */
   const handleInitialPick = (door: Door) => {
     if (state.playerPick !== null) return;
+
     const mDoor = montyOpensDoor(
       state.prizeDoor,
       door,
       state.montyType
     );
 
-    // Determine whether to offer switch
+    // Determine if switch is offered
     const offer =
       state.montyType === 'secretive'
         ? true
@@ -74,11 +62,11 @@ export default function PlayPage() {
   };
 
   /**
-   * Handle “Switch” or “Stay” button click.
+   * Handle "Switch" or "Stay" button click.
    * - Stay: finalize original pick immediately.
    * - Switch:
-   *    -S tandard/Evil: switch to the only remaining unopened door.
-   *    - Secretive: set choosingSwitch to true so user can pick among two remaining.
+   *    • For standard/evil: compute the one remaining door and finalize.
+   *    • For secretive: enter second selection mode.
    */
   const handleChoice = (doSwitch: boolean) => {
     if (
@@ -91,7 +79,7 @@ export default function PlayPage() {
     }
 
     if (!doSwitch) {
-      // Stay: finalize original
+      // Stay: finalize original pick
       const outcome =
         state.playerPick === state.prizeDoor ? 'win' : 'lose';
       setState(s => ({
@@ -105,7 +93,7 @@ export default function PlayPage() {
         // Enter secondary selection mode:
         setState(s => ({ ...s, choosingSwitch: true }));
       } else {
-        // Only one choice for standard/evil
+        // Standard/Evil: only one door remains
         const remaining = defaultDoors.find(
           d => d !== state.playerPick && d !== state.montyOpens
         )!;
@@ -121,8 +109,8 @@ export default function PlayPage() {
   };
 
   /**
-   * In secretive “choosingSwitch” mode, allow clicking one of the
-   * two other doors to finalize.
+   * When in secretive "choosingSwitch" mode, allow clicking one of the
+   * other two doors as the final pick.
    */
   const handleFinalPick = (door: Door) => {
     if (
@@ -140,7 +128,7 @@ export default function PlayPage() {
     }));
   };
 
-  /** Reset state for a new round, preserving MontyType */
+  /** Reset for another round, preserving MontyType */
   const resetGame = () => {
     setState({
       prizeDoor: pickPrizeDoor(),
@@ -156,8 +144,11 @@ export default function PlayPage() {
 
   return (
     <div style={{ padding: 20, fontFamily: 'sans-serif' }}>
-      {/* Generic heading, MontyType is hidden */}
-      <h2>Monty Hall Game</h2>
+      <h2>
+        Sandbox –{' '}
+        {state.montyType.charAt(0).toUpperCase() +
+          state.montyType.slice(1)} Monty
+      </h2>
 
       {/* Door row */}
       <div
@@ -169,24 +160,24 @@ export default function PlayPage() {
         }}
       >
         {defaultDoors.map(door => {
+          // Determine display status for each door
           let status: DoorStatus = 'closed';
 
-          // Reveal all at the end
           if (state.result != null) {
+            // Reveal prize at end
             status =
               door === state.prizeDoor ? 'prize' : 'opened';
-          }
-          // After initial pick, before final decision
-          else if (
+          } else if (
             state.playerPick != null &&
             state.finalPick == null
           ) {
+            // Post-initial-pick, pre-final-pick
             if (door === state.montyOpens) status = 'opened';
             else if (door === state.playerPick)
               status = 'selected';
           }
 
-          // Decide click behavior
+          // Decide click handler
           const onClick = () => {
             if (state.playerPick == null) {
               handleInitialPick(door);
@@ -198,7 +189,7 @@ export default function PlayPage() {
             }
           };
 
-          // Disable door clicks when not appropriate
+          // Disable clicking once result or for non-secretive
           const disabled =
             Boolean(state.result) ||
             (state.playerPick != null &&
@@ -217,7 +208,7 @@ export default function PlayPage() {
         })}
       </div>
 
-      {/* Switch/Stay prompt for all behaviors */}
+      {/* Switch/Stay prompt */}
       {state.switchOffered &&
         state.finalPick == null &&
         state.result == null &&
@@ -241,11 +232,11 @@ export default function PlayPage() {
           </div>
         )}
 
-      {/* Final result and reset */}
+      {/* Final result & reset */}
       {state.result && (
         <div style={{ textAlign: 'center' }}>
           <h3>You {state.result === 'win' ? 'won!' : 'lost.'}</h3>
-          <button onClick={resetGame}>Play Again</button>
+          <button onClick={resetGame}>Try Again</button>
         </div>
       )}
     </div>

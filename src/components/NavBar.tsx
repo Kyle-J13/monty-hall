@@ -1,3 +1,4 @@
+// src/components/NavBar.tsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -59,10 +60,12 @@ export default function NavBar() {
       </div>
 
       {/* Placeholder nav items for future sections */}
-      <span style={{ cursor: 'default' }}>Resources</span>
-      <span style={{ cursor: 'default' }}>Education</span>
-      <span style={{ cursor: 'default' }}>Results</span>
-      <span style={{ cursor: 'default' }}>About</span>
+      <Link to="/resources" style={{ textDecoration: 'none', color: 'inherit' }}>Resources</Link>
+      <Link to="/education" style={{ textDecoration: 'none', color: 'inherit' }}>Education</Link>
+      <Link to="/results" style={{ textDecoration: 'none', color: 'inherit' }}>Results</Link>
+
+      {/* Updated About link */}
+      <Link to="/about" style={{ textDecoration: 'none', color: 'inherit' }}>About</Link>
     </nav>
-);
+  );
 }

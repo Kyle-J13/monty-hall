@@ -24,19 +24,6 @@ export default function HomePage() {
       >
         Play
       </button>
-      <button
-        onClick={() => navigate('/research')}
-        style={{
-          position: 'absolute',
-          top: '1rem',
-          right: '1rem',
-          padding: '0.5rem 1rem',
-          fontSize: '1rem',
-          cursor: 'pointer'
-        }}
-      >
-        Research
-      </button>
     </div>
   );
 }

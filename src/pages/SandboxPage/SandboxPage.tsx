@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { montyTypes } from '../logic/montyEngine';
-import type { MontyType } from '../logic/types';
+import { montyTypes } from '../../logic/montyEngine';
+import type { MontyType } from '../../logic/types';
 
 /**
  * Sandbox landing page where user selects a specific Monty behavior.

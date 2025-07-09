@@ -1,15 +1,15 @@
 // src/pages/PlayPage.tsx
 
 import React, { useState } from 'react';
-import DoorButton from '../components/DoorButton';
-import type { DoorStatus } from '../components/DoorButton';
-import type { Door, GameState } from '../logic/types';
-import { defaultDoors } from '../logic/types';
+import DoorButton from '../../components/DoorButton';
+import type { DoorStatus } from '../../components/DoorButton';
+import type { Door, GameState } from '../../logic/types';
+import { defaultDoors } from '../../logic/types';
 import {
   pickPrizeDoor,
   pickRandomMontyType,
   montyOpensDoor
-} from '../logic/montyEngine';
+} from '../../logic/montyEngine';
 
 interface PlayState extends GameState {
   choosingSwitch: boolean; // true when user clicked “Switch” under secretive Monty

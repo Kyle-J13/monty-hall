@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import DoorButton from '../components/DoorButton';
-import type { DoorStatus } from '../components/DoorButton';
-import type { Door, GameState, MontyType } from '../logic/types';
-import { defaultDoors } from '../logic/types';
-import { pickPrizeDoor, montyOpensDoor } from '../logic/montyEngine';
+import DoorButton from '../../components/DoorButton';
+import type { DoorStatus } from '../../components/DoorButton';
+import type { Door, GameState, MontyType } from '../../logic/types';
+import { defaultDoors } from '../../logic/types';
+import { pickPrizeDoor, montyOpensDoor } from '../../logic/montyEngine';
 
 interface SandboxState extends GameState {
   choosingSwitch: boolean;  // true when user clicked "Switch" under secretive Monty

@@ -2,14 +2,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
-import HomePage from './pages/HomePage';
-import PlayPage from './pages/PlayPage';
-import SandboxPage from './pages/SandboxPage';
-import SandboxPlayPage from './pages/SandboxPlayPage';
-import AboutPage from './pages/AboutPage';
-import ResourcesPage from './pages/ResourcesPage';
-import EducationPage from './pages/EducationPage';
-import ResultsPage from './pages/ResultsPage';
+import HomePage from './pages/Homepage/HomePage';
+import PlayPage from './pages/PlayPage/PlayPage';
+import SandboxPage from './pages/SandboxPage/SandboxPage';
+import SandboxPlayPage from './pages/SandboxPage/SandboxPage';
+import AboutPage from './pages/AboutPage/AboutPage';
+import ResourcesPage from './pages/ResourcesPage/ResourcesPage';
+import EducationPage from './pages/EducationPage/EducationPage';
+import ResultsPage from './pages/ResultsPage/ResultsPage';
 
 /**
  * Main application component with routing for:

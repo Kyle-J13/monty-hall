@@ -1,7 +1,7 @@
 // src/App.tsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import NavBar from './components/NavBar';
+import NavBar from './components/NavBar/NavBar';
 import HomePage from './pages/Homepage/HomePage';
 import PlayPage from './pages/PlayPage/PlayPage';
 import SandboxPage from './pages/SandboxPage/SandboxPage';

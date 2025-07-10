@@ -1,5 +1,3 @@
-// src/pages/PlayPage.tsx
-
 import React, { useState } from 'react';
 import DoorButton from '../../components/DoorButton';
 import type { DoorStatus } from '../../components/DoorButton';
@@ -10,6 +8,8 @@ import {
   pickRandomMontyType,
   montyOpensDoor
 } from '../../logic/montyEngine';
+
+import './PlayPage.css';
 
 interface PlayState extends GameState {
   choosingSwitch: boolean; // true when user clicked “Switch” under secretive Monty
@@ -77,7 +77,7 @@ export default function PlayPage() {
    * Handle “Switch” or “Stay” button click.
    * - Stay: finalize original pick immediately.
    * - Switch:
-   *    -S tandard/Evil: switch to the only remaining unopened door.
+   *    - Standard/Evil: switch to the only remaining unopened door.
    *    - Secretive: set choosingSwitch to true so user can pick among two remaining.
    */
   const handleChoice = (doSwitch: boolean) => {
@@ -155,19 +155,12 @@ export default function PlayPage() {
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: 'sans-serif' }}>
+    <div className="play-container">
       {/* Generic heading, MontyType is hidden */}
       <h2>Monty Hall Game</h2>
 
       {/* Door row */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '2rem',
-          margin: '2rem 0',
-        }}
-      >
+      <div className="doors-row">
         {defaultDoors.map(door => {
           let status: DoorStatus = 'closed';
 
@@ -222,12 +215,7 @@ export default function PlayPage() {
         state.finalPick == null &&
         state.result == null &&
         !state.choosingSwitch && (
-          <div
-            style={{
-              textAlign: 'center',
-              marginBottom: '2rem',
-            }}
-          >
+          <div className="switch-stay">
             <p>Do you want to switch or stay?</p>
             <button
               onClick={() => handleChoice(true)}
@@ -243,7 +231,7 @@ export default function PlayPage() {
 
       {/* Final result and reset */}
       {state.result && (
-        <div style={{ textAlign: 'center' }}>
+        <div className="result-display">
           <h3>You {state.result === 'win' ? 'won!' : 'lost.'}</h3>
           <button onClick={resetGame}>Play Again</button>
         </div>

@@ -10,6 +10,7 @@ import AboutPage from './pages/AboutPage/AboutPage';
 import ResourcesPage from './pages/ResourcesPage/ResourcesPage';
 import EducationPage from './pages/EducationPage/EducationPage';
 import ResultsPage from './pages/ResultsPage/ResultsPage';
+import './App.css';
 
 /**
  * Main application component with routing for:

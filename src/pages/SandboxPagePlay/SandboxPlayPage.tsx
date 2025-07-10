@@ -1,5 +1,3 @@
-// src/pages/SandboxPlayPage.tsx
-
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import DoorButton from '../../components/DoorButton';
@@ -7,6 +5,7 @@ import type { DoorStatus } from '../../components/DoorButton';
 import type { Door, GameState, MontyType } from '../../logic/types';
 import { defaultDoors } from '../../logic/types';
 import { pickPrizeDoor, montyOpensDoor } from '../../logic/montyEngine';
+import './SandboxPlayPage.css';
 
 interface SandboxState extends GameState {
   choosingSwitch: boolean;  // true when user clicked "Switch" under secretive Monty
@@ -143,7 +142,7 @@ export default function SandboxPlayPage() {
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: 'sans-serif' }}>
+    <div className="sandbox-play-container">
       <h2>
         Sandbox –{' '}
         {state.montyType.charAt(0).toUpperCase() +
@@ -151,14 +150,7 @@ export default function SandboxPlayPage() {
       </h2>
 
       {/* Door row */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '2rem',
-          margin: '2rem 0',
-        }}
-      >
+      <div className="sandbox-doors-row">
         {defaultDoors.map(door => {
           // Determine display status for each door
           let status: DoorStatus = 'closed';
@@ -213,20 +205,15 @@ export default function SandboxPlayPage() {
         state.finalPick == null &&
         state.result == null &&
         !state.choosingSwitch && (
-          <div
-            style={{
-              textAlign: 'center',
-              marginBottom: '2rem',
-            }}
-          >
+          <div className="sandbox-switch-stay">
             <p>Do you want to switch or stay?</p>
             <button
               onClick={() => handleChoice(true)}
-              style={{ marginRight: '1rem' }}
+              className="switch-button"
             >
               Switch
             </button>
-            <button onClick={() => handleChoice(false)}>
+            <button onClick={() => handleChoice(false)} className="stay-button">
               Stay
             </button>
           </div>
@@ -234,9 +221,9 @@ export default function SandboxPlayPage() {
 
       {/* Final result & reset */}
       {state.result && (
-        <div style={{ textAlign: 'center' }}>
+        <div className="sandbox-result">
           <h3>You {state.result === 'win' ? 'won!' : 'lost.'}</h3>
-          <button onClick={resetGame}>Try Again</button>
+          <button onClick={resetGame} className="try-again-button">Try Again</button>
         </div>
       )}
     </div>

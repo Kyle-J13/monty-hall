@@ -1,8 +1,9 @@
 import React from 'react';
+import './AboutPage.css'; 
 
 export default function AboutPage() {
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: 600, margin: '0 auto' }}>
+    <div className="about-container">
       <h1>About the Monty Hall Learning Platform</h1>
       <p>
         This interactive sandbox lets you explore the famous Monty Hall problem and its variations.
@@ -19,7 +20,7 @@ export default function AboutPage() {
         <li>Professor Bram (Project Lead)</li>
         <li>Kyle-J13 (Developer)</li>
       </ul>
-      <p style={{ marginTop: '2rem' }}>
+      <p className="about-footer">
         Data is stored securely; we never collect personal identifiers. For more info, see our <a href="https://github.com/Kyle-J13/monty-hall" target="_blank" rel="noopener noreferrer">GitHub</a>.
       </p>
     </div>

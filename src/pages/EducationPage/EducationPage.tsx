@@ -1,9 +1,10 @@
 // src/pages/EducationPage.tsx
 import React from 'react';
+import './EducationPage.css';
 
 export default function EducationPage() {
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: 600, margin: '0 auto' }}>
+    <div className="education-container">
       <h1>Education</h1>
       <p>This section provides an intuitive and mathematical explanation of the Monty Hall problem, plus interactive visualizations coming soon.</p>
       <h2>Why Switch?</h2>

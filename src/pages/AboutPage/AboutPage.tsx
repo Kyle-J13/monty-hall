@@ -19,6 +19,7 @@ export default function AboutPage() {
       <ul>
         <li>Professor Bram (Project Lead)</li>
         <li>Kyle-J13 (Developer)</li>
+        <li>Ameya Barve (Developer)</li>
       </ul>
       <p className="about-footer">
         Data is stored securely; we never collect personal identifiers. For more info, see our <a href="https://github.com/Kyle-J13/monty-hall" target="_blank" rel="noopener noreferrer">GitHub</a>.

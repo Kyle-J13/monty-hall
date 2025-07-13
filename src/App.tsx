@@ -5,7 +5,7 @@ import NavBar from './components/NavBar/NavBar';
 import HomePage from './pages/Homepage/HomePage';
 import PlayPage from './pages/PlayPage/PlayPage';
 import SandboxPage from './pages/SandboxPage/SandboxPage';
-import SandboxPlayPage from './pages/SandboxPage/SandboxPage';
+import SandboxPlayPage from './pages/SandboxPagePlay/SandboxPlayPage';
 import AboutPage from './pages/AboutPage/AboutPage';
 import ResourcesPage from './pages/ResourcesPage/ResourcesPage';
 import EducationPage from './pages/EducationPage/EducationPage';

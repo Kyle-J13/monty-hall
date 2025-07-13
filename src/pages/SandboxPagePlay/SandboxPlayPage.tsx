@@ -46,10 +46,9 @@ export default function SandboxPlayPage() {
           : mDoor !== null;
 
     // Instant loss if Evil Monty opens player's door
-    const immediateResult =
-      state.montyType === 'evil' && mDoor === door
-        ? 'lose'
-        : null;
+    const immediateResult = state.montyType === 'evil' && mDoor === state.prizeDoor
+      ? 'lose'
+      : null;
 
     setState(s => ({
       ...s,
@@ -64,8 +63,8 @@ export default function SandboxPlayPage() {
    * Handle "Switch" or "Stay" button click.
    * - Stay: finalize original pick immediately.
    * - Switch:
-   *    • For standard/evil: compute the one remaining door and finalize.
-   *    • For secretive: enter second selection mode.
+   *    - For standard/evil: compute the one remaining door and finalize.
+   *    - For secretive: enter second selection mode.
    */
   const handleChoice = (doSwitch: boolean) => {
     if (

@@ -5,9 +5,9 @@ import type { Door } from './types'
 
 /**
  * Describes each action Monty can take:
- * - 'OpenPrize': Monty opens the prize door (player loses)
+ * - 'OpenPrize': Monty opens the prize door 
  * - 'OpenPlayerPick': Monty opens the door the player chose
- * - 'OpenOther': Monty opens one of the other goat doors
+ * - 'OpenOther': Monty opens one of the other non-prize doors
  * - 'None': Monty opens no door
  */
 export type MontyAction =
@@ -28,7 +28,7 @@ export const MontyActions: MontyAction[] = [
 ]
 
 /**
- * A 2-column probability table for each MontyAction:
+ * A 2 column probability table for each MontyAction:
  * - Column 0: when player's pick matches the prize
  * - Column 1: when player's pick does not match the prize
  *
@@ -38,8 +38,8 @@ export type ProbabilityTable = [number, number][]
 
 /**
  * Standard Monty behavior:
- * - If player picked the prize: pick one goat at random (100%)
- * - If player picked a goat: open the only other goat (100%)
+ * - If player picked the prize: pick one door at random
+ * - If player did not pick the prize: open the only other non-prize door
  */
 export const standardTable: ProbabilityTable = [
   /* OpenPrize      */ [0, 0],
@@ -50,8 +50,8 @@ export const standardTable: ProbabilityTable = [
 
 /**
  * Evil Monty behavior:
- * - If player picked the prize: pick one goat at random (100%)
- * - If player picked a goat: open the prize door (100%)
+ * - If player picked the prize: pick one door at random
+ * - If player did not pick the prize: open the door
  */
 export const evilTable: ProbabilityTable = [
   /* OpenPrize      */ [0, 1],
@@ -62,7 +62,7 @@ export const evilTable: ProbabilityTable = [
 
 /**
  * Secretive Monty behavior:
- * - Monty never opens a door (100% None) to hide his strategy
+ * - Monty never opens a door to hide his strategy
  */
 export const secretiveTable: ProbabilityTable = [
   /* OpenPrize      */ [0, 0],
@@ -75,7 +75,7 @@ export const secretiveTable: ProbabilityTable = [
  * Given a selected row index, return which door Monty opens:
  * - rowIndex 0: prizeDoor
  * - rowIndex 1: playerPick
- * - rowIndex 2: the other goat door
+ * - rowIndex 2: the other non-prize door
  * - any other: none
  *
  * @param rowIndex  index of the action row in the table

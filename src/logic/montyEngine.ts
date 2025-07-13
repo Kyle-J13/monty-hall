@@ -13,7 +13,7 @@ import {
 import type { ProbabilityTable } from './montyTables'
 
 /**
- * Pick a random door, excluding any in the given list.
+ * Returns a random door from defaultDoors, excluding any in the exclude list.
  */
 function getRandomDoor(exclude: Door[] = []): Door {
   const options = defaultDoors.filter(d => !exclude.includes(d))
@@ -21,7 +21,7 @@ function getRandomDoor(exclude: Door[] = []): Door {
 }
 
 /**
- * Randomly choose which door hides the prize.
+ * Randomly selects the door that hides the prize.
  */
 export function pickPrizeDoor(): Door {
   return getRandomDoor()
@@ -48,10 +48,10 @@ export function pickRandomMontyType(): MontyType {
  * Decide which door Monty opens, based on a 4×2 probability table in 'montyTables.ts'.
  *
  * The table has four rows representing the actions:
- *   0 → open the prize door
- *   1 → open the player’s picked door
- *   2 → open the other goat door
- *   3 → open no door
+ *   0 -> open the prize door
+ *   1 -> open the player’s picked door
+ *   2 -> open the other non-prize door
+ *   3 -> open no door
  *
  * Each row has two columns:
  *   [0] when playerPick === prizeDoor

@@ -37,19 +37,19 @@ export default function SandboxPlayPage() {
       state.montyType
     );
 
-    // Determine if switch is offered
-    const offer =
-      state.montyType === 'secretive'
-        ? true
-        : state.montyType === 'evil' && mDoor === door
-          ? false
-          : mDoor !== null;
+    // secretive always offers a switch,
+    // evil immediately ends the game when the prize is revealed,
+    // otherwise offer if Monty actually opened a door
+    const offer = state.montyType === 'secretive'
+      ? true
+      : state.montyType === 'evil' && mDoor === state.prizeDoor
+        ? false
+        : mDoor !== null;
 
     // Instant loss if Evil Monty opens player's door
-    const immediateResult =
-      state.montyType === 'evil' && mDoor === door
-        ? 'lose'
-        : null;
+    const immediateResult = state.montyType === 'evil' && mDoor === state.prizeDoor
+      ? 'lose'
+      : null;
 
     setState(s => ({
       ...s,
@@ -59,6 +59,7 @@ export default function SandboxPlayPage() {
       result: immediateResult,
     }));
   };
+
 
   /**
    * Handle "Switch" or "Stay" button click.

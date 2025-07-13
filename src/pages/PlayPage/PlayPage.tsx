@@ -59,10 +59,9 @@ export default function PlayPage() {
           : mDoor !== null;
 
     // Instant loss if Evil Monty opens player's door
-    const immediateResult =
-      state.montyType === 'evil' && mDoor === door
-        ? 'lose'
-        : null;
+    const immediateResult = state.montyType === 'evil' && mDoor === state.prizeDoor
+      ? 'lose'
+      : null;
 
     setState(s => ({
       ...s,

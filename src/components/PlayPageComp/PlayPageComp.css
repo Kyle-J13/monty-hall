@@ -1,0 +1,29 @@
+.play-container {
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.doors-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.switch-stay {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.result-display {
+  text-align: center;
+}
+
+#Monty-Title {
+  text-align: center;
+  font-size: 2em;
+}
+
+#title-name{
+  text-align: center;
+}

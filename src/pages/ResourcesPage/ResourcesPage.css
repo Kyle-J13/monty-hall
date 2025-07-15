@@ -4,3 +4,17 @@
   max-width: 600px;
   margin: 0 auto;
 }
+
+.resources-container h1{
+  text-align: center;
+}
+
+#sub-text {
+  text-align: center;
+}
+
+#resources-section{
+  display: flex;
+  flex-direction: row;
+  gap: 2em;
+}

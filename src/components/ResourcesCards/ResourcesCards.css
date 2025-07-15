@@ -1,0 +1,28 @@
+.shade-card {
+  background-color: #1e1e1e;
+  color: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 20em;    
+  height: 12em; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.shade-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.shade-header h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.shade-card p {
+  font-size: 14px;
+  color: #d1d1d1;
+  line-height: 1.6;
+  margin: 0;
+}

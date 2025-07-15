@@ -1,43 +1,34 @@
 // src/pages/ResourcesPage.tsx
 import React from 'react';
 import './ResourcesPage.css'; 
+import ResourcesCards from "../../components/ResourcesCards/ResourcesCards";
 
 export default function ResourcesPage() {
   return (
     <div className="resources-container">
       <h1>Resources</h1>
-      <p>
+      <p id="sub-text">
         Here you’ll find links to documentation, tutorials, and related materials for the Monty Hall Learning Platform.
       </p>
-      <ul>
-        <li>
-          <a
-            href="https://en.wikipedia.org/wiki/Monty_Hall_problem"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Monty Hall on Wikipedia
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://reactjs.org/docs/getting-started.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Docs
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://supabase.com/docs"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Supabase Docs
-          </a>
-        </li>
-      </ul>
+      <div id="resources-section">
+        <ResourcesCards
+          title="Monty Hall"
+          link="https://en.wikipedia.org/wiki/Monty_Hall_problem"
+          description="Description of the Monty Hall Problem"
+        />
+        
+        <ResourcesCards
+          title="React Docs"
+          link="https://reactjs.org/docs/getting-started.html"
+          description="React Documentation"
+        />
+
+        <ResourcesCards
+          title="Supabase Docs"
+          link="https://supabase.com/docs"
+          description="Supabase Documentation"
+        />
+      </div>
     </div>
   );
 }

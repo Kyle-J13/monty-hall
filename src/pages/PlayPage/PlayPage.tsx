@@ -156,7 +156,7 @@ export default function PlayPage() {
   return (
     <div className="play-container">
       {/* Generic heading, MontyType is hidden */}
-      <h2>Monty Hall Game</h2>
+      <h2 id="Monty-Title">Monty Hall Game</h2>
 
       {/* Door row */}
       <div className="doors-row">

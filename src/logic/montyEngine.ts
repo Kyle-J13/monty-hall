@@ -34,6 +34,7 @@ export const montyTypes: MontyType[] = [
   'standard',
   'evil',
   'secretive',
+  'custom',
 ]
 
 /**
@@ -65,14 +66,25 @@ export function pickRandomMontyType(): MontyType {
 export function montyOpensDoor(
   prizeDoor: Door,
   playerPick: Door,
-  montyType: MontyType
+  montyType: MontyType,
+  customTable?: ProbabilityTable
 ): Door | null {
   // select the appropriate probability table
   const table: ProbabilityTable =
-    montyType === 'standard'  ? standardTable  :
-    montyType === 'evil'      ? evilTable      :
-    montyType === 'secretive' ? secretiveTable :
-    (() => { throw new Error(`Unknown MontyType: ${montyType}`) })()
+    montyType === 'custom'
+      ? (() => {
+          if (!customTable) {
+            throw new Error('Custom table required for MontyType "custom".')
+          }
+          return customTable
+        })()
+      : montyType === 'standard'
+        ? standardTable
+        : montyType === 'evil'
+          ? evilTable
+          : montyType === 'secretive'
+            ? secretiveTable
+            : (() => { throw new Error(`Unknown MontyType: ${montyType}`) })()
 
   // determine which column applies
   const column = prizeDoor === playerPick ? 0 : 1

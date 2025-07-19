@@ -5,7 +5,14 @@ export type Door = number;
 export const defaultDoors: Door[] = [1, 2, 3];
 
 // Supported Monty behavior models
-export type MontyType = 'standard' | 'evil' | 'secretive';
+export type MontyType = 
+  | 'standard' 
+  | 'evil' 
+  | 'secretive'
+  | 'custom'
+
+// new shape for a custom table (4 rows × 2 columns)
+export type CustomTable = [number,number][]
 
 // GameState describes all relevant data for a single round
 export interface GameState {

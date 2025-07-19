@@ -27,3 +27,11 @@
 #title-name{
   text-align: center;
 }
+
+.monty-game-container.win .door-button.prize {
+  border-color: green;
+}
+
+.monty-game-container.lose .door-button.prize {
+  border-color: red;
+}

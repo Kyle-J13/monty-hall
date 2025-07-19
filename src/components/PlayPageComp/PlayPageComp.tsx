@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import DoorButton from '../DoorButton';
-import type { Door, GameState, MontyType } from '../../logic/types';
+import type { Door, GameState, MontyType, CustomTable } from '../../logic/types';
 import { defaultDoors } from '../../logic/types';
 import { pickPrizeDoor, pickRandomMontyType, montyOpensDoor } from '../../logic/montyEngine';
 import type { DoorStatus } from '../DoorButton';
@@ -9,6 +9,7 @@ import './PlayPageComp.css';
 interface MontyGameProps {
   initialMontyType?: MontyType;
   hideMontyTypeFromUser?: boolean;
+  customTable?: CustomTable
 }
 
 interface PlayState extends GameState {
@@ -28,7 +29,7 @@ interface PlayState extends GameState {
  *         – Secretive: enter second selection mode to choose among the two remaining doors.
  *   4. Reveal all doors and show prize.
  */
-export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = false }: MontyGameProps) {
+export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = false, customTable, }: MontyGameProps) {
   const [state, setState] = useState<PlayState>({
     prizeDoor: pickPrizeDoor(),
     playerPick: null,
@@ -42,16 +43,32 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
 
   const handleInitialPick = (door: Door) => {
     if (state.playerPick !== null) return;
-    const mDoor = montyOpensDoor(state.prizeDoor, door, state.montyType);
-    
-    // Determine whether to offer switch
-    const offer = state.montyType === 'secretive'
-      ? true
-      : state.montyType === 'evil' && mDoor === door
+
+    // Monty chooses a door to open, using a custom table if provided
+    const mDoor = montyOpensDoor(
+      state.prizeDoor,
+      door,
+      state.montyType,
+      customTable
+    );
+
+    // If Monty opens the prize door, the game ends immediately.
+    // If it was the door the player originally picked, that's a win;
+    // otherwise it's a loss.
+    const immediateResult =
+      mDoor === state.prizeDoor
+        ? (door === state.prizeDoor ? 'win' : 'lose')
+        : null;
+
+    // Offer a switch only if the game hasn’t already ended:
+    // - secretive always offers
+    // - otherwise offer if Monty actually opened a door
+    const offer =
+      immediateResult != null
         ? false
-        : mDoor !== null;
-    // Instant loss if Evil Monty opens player's door
-    const immediateResult = state.montyType === 'evil' && mDoor === state.prizeDoor ? 'lose' : null;
+        : state.montyType === 'secretive'
+          ? true
+          : mDoor !== null;
 
     setState(s => ({
       ...s,
@@ -61,6 +78,7 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
       result: immediateResult,
     }));
   };
+
   /**
    * Handle “Switch” or “Stay” button click.
    * - Stay: finalize original pick immediately.
@@ -121,7 +139,7 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
   };
 
   return (
-    <div className="monty-game-container">
+    <div className={`monty-game-container ${state.result === 'win'  ? 'win' : state.result === 'lose' ? 'lose' : ''}`}>
       <h2 id="title-name">
          {/* Either shows which Monty is being played, or shows just "Monty Hall Game" title */}
         {!hideMontyTypeFromUser
@@ -159,6 +177,7 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
               status={status}
               onClick={onClick}
               disabled={disabled}
+              gameResult = {state.result}
             />
           );
         })}

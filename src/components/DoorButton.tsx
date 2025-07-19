@@ -11,6 +11,8 @@ interface DoorButtonProps {
   status: DoorStatus;
   onClick: () => void;
   disabled?: boolean;
+  /** 'win' or 'lose' after the round ends, or undefined during play */
+  gameResult?: 'win' | 'lose' | null;
 }
 
 /**
@@ -18,23 +20,29 @@ interface DoorButtonProps {
  * - closed: shows a closed door
  * - opened: shows an open door
  * - selected: closed door with highlight
- * - prize: reveals the prize icon
+ * - prize: reveals the prize icon, green on win or red on loss
  */
 const DoorButton: React.FC<DoorButtonProps> = ({
   door,
   status,
   onClick,
   disabled = false,
+  gameResult = null,
 }) => {
   const imgSrc =
     status === 'opened' ? openImg :
-    status === 'prize'  ? prizeImg:
+    status === 'prize'  ? prizeImg :
                           closedImg;
 
+  // Highlight selected doors in blue.
+  // Prize door is green on win, red on loss.
   const border =
     status === 'selected' ? '4px solid #007ACC' :
-    status === 'prize'    ? '4px solid #228B22' :
-                            '2px solid #333';
+    status === 'prize'
+      ? (gameResult === 'lose'
+          ? '4px solid #B22222'  
+          : '4px solid #228B22') 
+      : '2px solid #333';
 
   return (
     <div style={{ textAlign: 'center', userSelect: 'none' }}>

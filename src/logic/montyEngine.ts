@@ -37,12 +37,14 @@ export const montyTypes: MontyType[] = [
   'custom',
 ]
 
+const randomMontyTypes: MontyType[] = ['standard', 'evil', 'secretive'];
+
 /**
  * Randomly select one of the Monty behavior modes.
  */
 export function pickRandomMontyType(): MontyType {
-  const idx = Math.floor(Math.random() * montyTypes.length)
-  return montyTypes[idx]
+  const idx = Math.floor(Math.random() * randomMontyTypes.length)
+  return randomMontyTypes[idx]
 }
 
 /**

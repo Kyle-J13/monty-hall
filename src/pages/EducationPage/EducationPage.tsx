@@ -1,5 +1,5 @@
 // src/pages/EducationPage.tsx
-import React from 'react';
+// import React from 'react';
 import './EducationPage.css';
 
 export default function EducationPage() {

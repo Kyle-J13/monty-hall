@@ -1,8 +1,19 @@
 // src/pages/ResultsPage.tsx
-import React from 'react';
 import './ResultsPage.css';
+import { useEffect } from 'react';
 
 export default function ResultsPage() {
+  const getUser = () => {
+    fetch("/api/user")
+    .then(res => res.json())
+    .then(json=> console.log(json))
+  }
+
+  useEffect(()=>{
+    getUser()
+  }, [])
+  
+  
   return (
     <div className="results-container">
       <h1>Results & Statistics</h1>

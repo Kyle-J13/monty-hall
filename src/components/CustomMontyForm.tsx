@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
+// import React from 'react'
 import type { CustomTable } from '../logic/types'
 
 const ROW_LABELS = [

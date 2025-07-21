@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import DoorButton from '../DoorButton';
 import type { Door, GameState, MontyType, CustomTable } from '../../logic/types';
 import { defaultDoors } from '../../logic/types';

@@ -1,5 +1,4 @@
 // src/pages/ResourcesPage.tsx
-import React from 'react';
 import './ResourcesPage.css'; 
 import ResourcesCards from "../../components/ResourcesCards/ResourcesCards";
 

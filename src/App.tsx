@@ -1,5 +1,5 @@
 // src/App.tsx
-import React from 'react';
+// import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar/NavBar';
 import HomePage from './pages/Homepage/HomePage';
@@ -20,6 +20,7 @@ import './App.css';
  * - Sandbox play instance at "/sandbox/play"
  */
 export default function App() {
+
   return (
     <Router>
       <NavBar />

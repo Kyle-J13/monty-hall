@@ -1,4 +1,3 @@
-import React from 'react';
 import './ResourcesCards.css';
 
 type ResourcesCardProps = {

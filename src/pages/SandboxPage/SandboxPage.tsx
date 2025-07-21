@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { montyTypes } from '../../logic/montyEngine';
 import type { MontyType } from '../../logic/types';

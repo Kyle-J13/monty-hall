@@ -3,13 +3,41 @@ import users from "./users.js"
 
 const app = express()
 
+app.use(express.json());
+
 app.get("/", (req, res)=>{
   res.send("Server is ready")
 })
 
-app.get("/api/user", (req, res)=>{
-  res.send(users)
-})
+// Data format
+// {
+//   montyName: "Original",
+//   switched: true,
+//   won: 3,
+//   lost: 1,
+// },
+// {
+
+let gameStats = [];
+
+// GET all stats
+app.get("/api/stats", (req, res) => {
+  res.json(gameStats);
+});
+
+// POST
+app.post("/api/stats", (req, res) => {
+  const { montyName, switched, won } = req.body;
+
+  const newEntry = {
+    montyName: montyName || "",
+    switched: switched || false,
+    won: won || 0,
+  };
+
+  gameStats.push(newEntry);
+  res.status(201).json({ message: "New stat added", stats: newEntry });
+});
 
 const port = process.env.PORT || 3000
 

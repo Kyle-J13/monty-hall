@@ -16,6 +16,7 @@ interface PlayState extends GameState {
   choosingSwitch: boolean;
 }
 
+
 /**
  * PlayPage – classic Monty Hall game for data collection.
  * MontyType is chosen randomly but never shown to the user.
@@ -40,6 +41,46 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
     montyType: initialMontyType || pickRandomMontyType(),
     choosingSwitch: false,
   });
+
+  const updateMontyChoice = (montyKey: string, result: 'win' | 'lose', switched: boolean) => {
+    const field = result === 'win' ? 1 : 0;
+
+    console.log(montyKey, field, switched);
+
+
+    fetch(`/api/stats`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ montyKey, switched, field })
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Stats updated:", data);
+    })
+    .catch(err => {
+      console.error("Failed to report result", err);
+    });
+  };
+
+  const callBackendObjs = () => {
+  fetch("/api/stats", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to fetch stats");
+      return res.json();
+    })
+    .then(data => {
+      console.log("Game stats received:", data);
+      // Optional: update state with setStats(data)
+    })
+    .catch(err => {
+      console.error("Error fetching backend stats:", err);
+    });
+};
 
   const handleInitialPick = (door: Door) => {
     if (state.playerPick !== null) return;
@@ -97,7 +138,9 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
     if (!doSwitch) {
       // Stay: finalize original
       const outcome = state.playerPick === state.prizeDoor ? 'win' : 'lose';
+      updateMontyChoice(state.montyType, outcome, false);
       setState(s => ({ ...s, finalPick: s.playerPick!, result: outcome }));
+      callBackendObjs();
     } else {
       // Switch requested
       if (state.montyType === 'secretive') {
@@ -109,7 +152,9 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
           d => d !== state.playerPick && d !== state.montyOpens
         )!;
         const outcome = remaining === state.prizeDoor ? 'win' : 'lose';
+        updateMontyChoice(state.montyType, outcome, true);
         setState(s => ({ ...s, finalPick: remaining, result: outcome }));
+        callBackendObjs();
       }
     }
   };

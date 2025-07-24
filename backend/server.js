@@ -9,6 +9,7 @@ app.get("/", (req, res)=>{
   res.send("Server is ready")
 })
 
+// Data format
 // {
 //   montyName: "Original",
 //   switched: true,
@@ -16,21 +17,13 @@ app.get("/", (req, res)=>{
 //   lost: 1,
 // },
 // {
-//   montyName: "Evil",
-//   switched: false,
-//   won: 1,
-//   lost: 4,
-// },
 
-let gameStats = [
-  
-];
+let gameStats = [];
 
 // GET all stats
 app.get("/api/stats", (req, res) => {
   res.json(gameStats);
 });
-
 
 // POST
 app.post("/api/stats", (req, res) => {
@@ -45,13 +38,6 @@ app.post("/api/stats", (req, res) => {
   gameStats.push(newEntry);
   res.status(201).json({ message: "New stat added", stats: newEntry });
 });
-
-// Temporary test endpoint
-app.get("/api/stats", (req, res) => {
-  res.send(users);
-});
-
-
 
 const port = process.env.PORT || 3000
 

@@ -6,6 +6,11 @@ import { pickPrizeDoor, pickRandomMontyType, montyOpensDoor } from '../../logic/
 import type { DoorStatus } from '../DoorButton';
 import './PlayPageComp.css';
 
+import { Bar } from 'react-chartjs-2';
+import { Chart, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+
+Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+
 interface MontyGameProps {
   initialMontyType?: MontyType;
   hideMontyTypeFromUser?: boolean;
@@ -42,6 +47,13 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
     choosingSwitch: false,
   });
 
+  const [stats, setStats] = useState<any[]>([]);
+
+  const filteredStats = stats.filter((entry) => entry.montyName === state.montyType);
+
+  const winCount = filteredStats.filter((entry) => entry.won === 1).length;
+  const loseCount = filteredStats.filter((entry) => entry.won === 0).length;
+
   const updateMontyChoice = (montyKey: string, result: 'win' | 'lose', switched: boolean) => {
     const field = result === 'win' ? 1 : 0;
 
@@ -51,7 +63,10 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
     fetch(`/api/stats`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ montyKey, switched, field })
+      body: JSON.stringify({ montyName: montyKey,
+        switched,
+        won: field 
+      })
     })
     .then(res => res.json())
     .then(data => {
@@ -63,24 +78,25 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
   };
 
   const callBackendObjs = () => {
-  fetch("/api/stats", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  })
-    .then(res => {
-      if (!res.ok) throw new Error("Failed to fetch stats");
-      return res.json();
+    fetch("/api/stats", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json"
+      }
     })
-    .then(data => {
-      console.log("Game stats received:", data);
-      // Optional: update state with setStats(data)
-    })
-    .catch(err => {
-      console.error("Error fetching backend stats:", err);
-    });
-};
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch stats");
+        return res.json();
+      })
+      .then(data => {
+        console.log("Game stats received:", data);
+        setStats(data);
+      })
+      .catch(err => {
+        console.error("Error fetching backend stats:", err);
+      });
+  };
+
 
   const handleInitialPick = (door: Door) => {
     if (state.playerPick !== null) return;
@@ -166,7 +182,9 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
   const handleFinalPick = (door: Door) => {
     if (!state.choosingSwitch || state.finalPick != null || state.result != null) return;
     const outcome = door === state.prizeDoor ? 'win' : 'lose';
+    updateMontyChoice(state.montyType, outcome, false);
     setState(s => ({ ...s, finalPick: door, result: outcome }));
+    callBackendObjs();
   };
 
   /** Reset state for a new round, preserving MontyType */
@@ -182,6 +200,41 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
       choosingSwitch: false,
     });
   };
+
+  const chartData = {
+    labels: ['Win', 'Loss'],
+    datasets: [
+      {
+        label: `Results for ${state.montyType}`,
+        data: [winCount, loseCount],
+        backgroundColor: ['#4caf50', '#f44336'],
+      },
+    ],
+  };
+
+    
+  const chartOptions = {
+    plugins: {
+      legend: {
+        labels: {
+          color: 'white', 
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: 'white', 
+        },
+      },
+      y: {
+        ticks: {
+          color: 'white', 
+        },
+      },
+    },
+  };
+
 
   return (
     <div className={`monty-game-container ${state.result === 'win'  ? 'win' : state.result === 'lose' ? 'lose' : ''}`}>
@@ -244,6 +297,10 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
           <button onClick={resetGame}>Play Again</button>
         </div>
       )}
+
+      <div className="chart-container">
+        <Bar data={chartData} options={chartOptions} />
+      </div>
     </div>
   );
 }

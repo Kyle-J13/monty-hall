@@ -35,3 +35,9 @@
 .monty-game-container.lose .door-button.prize {
   border-color: red;
 }
+
+.chart-container{
+  width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}

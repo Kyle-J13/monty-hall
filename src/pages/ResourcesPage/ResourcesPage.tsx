@@ -15,18 +15,6 @@ export default function ResourcesPage() {
           link="https://en.wikipedia.org/wiki/Monty_Hall_problem"
           description="Description of the Monty Hall Problem"
         />
-        
-        <ResourcesCards
-          title="React Docs"
-          link="https://reactjs.org/docs/getting-started.html"
-          description="React Documentation"
-        />
-
-        <ResourcesCards
-          title="Supabase Docs"
-          link="https://supabase.com/docs"
-          description="Supabase Documentation"
-        />
       </div>
     </div>
   );

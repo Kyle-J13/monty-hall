@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 
 export default function ResultsPage() {
   const getUser = () => {
-    fetch("/api/user")
+    fetch("/api/stats")
     .then(res => res.json())
     .then(json=> console.log(json))
   }

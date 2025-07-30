@@ -28,6 +28,7 @@ app.get("/api/stats", (req, res) => {
 // POST
 app.post("/api/stats", (req, res) => {
   const { montyName, switched, won } = req.body;
+  console.log(montyName)
 
   const newEntry = {
     montyName: montyName || "",

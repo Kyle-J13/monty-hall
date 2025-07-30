@@ -2,6 +2,26 @@
 .education-container {
   padding: 2rem;
   font-family: sans-serif;
-  max-width: 600px;
-  margin: 0 auto;
+  margin-right: 5em;
+  margin-left: 5em;
+  display: flex;
+  gap: 3rem;
+}
+
+.educationDiv {
+  flex: 2; 
+}
+
+.resourcesDiv {
+  flex: 2;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+#educationTitle{
+  text-align: center;
+}
+
+#resourcesTitle{
+  text-align: center;
 }

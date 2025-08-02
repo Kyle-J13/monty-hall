@@ -116,6 +116,11 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
       mDoor === state.prizeDoor
         ? (door === state.prizeDoor ? 'win' : 'lose')
         : null;
+    
+    if (immediateResult === 'lose' && state.montyType === 'evil') {
+      updateMontyChoice(state.montyType, 'lose', false);
+      callBackendObjs();
+    }
 
     // Offer a switch only if the game hasn’t already ended:
     // - secretive always offers

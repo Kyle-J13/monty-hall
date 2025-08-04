@@ -1,5 +1,4 @@
 import express from "express"
-import users from "./users.js"
 
 const app = express()
 
@@ -9,14 +8,21 @@ app.get("/", (req, res)=>{
   res.send("Server is ready")
 })
 
-// Data format
+const port = process.env.PORT || 3000
+
+app.listen(port, ()=>{
+  console.log(`Server at http://localhost:${port}`)
+})
+
+// Data and api for the win/loss rate for specific monty played
+
+// /api/stats format
 // {
-//   montyName: "Original",
-//   switched: true,
-//   won: 3,
-//   lost: 1,
-// },
-// {
+//   montyName: String,
+//   switched: boolean,
+//   won: int,
+//   lost: int,
+// }
 
 let gameStats = [];
 
@@ -40,8 +46,48 @@ app.post("/api/stats", (req, res) => {
   res.status(201).json({ message: "New stat added", stats: newEntry });
 });
 
-const port = process.env.PORT || 3000
+// Database collection format and api
 
-app.listen(port, ()=>{
-  console.log(`Server at http://localhost:${port}`)
-})
+// /api/dataCollection format
+// {
+//  cycleNumber: int,
+//  montyType: String,
+//  playerInitialPick: String,
+//  montyResponse: String,
+//  optionTwo: String,
+//  outcome: int,
+//  playAgain: boolean
+// }
+
+let database = [];
+
+// GET all stats
+app.get("/api/dataCollection", (req, res) => {
+  res.json(database);
+});
+
+// POST
+app.post("/api/dataCollection", (req, res) => {
+  const {
+    cycleNumber,
+    montyType,
+    playerInitialPick,
+    montyResponse,
+    optionTwo,
+    outcome,
+    playAgain
+  } = req.body;
+
+  const newEntry = {
+    cycleNumber: cycleNumber || 0,
+    montyType: montyType || "",
+    playerInitialPick: playerInitialPick || "",
+    montyResponse: montyResponse || "",
+    optionTwo: optionTwo || "",
+    outcome: outcome || 0,
+    playAgain: playAgain || false,
+  };
+
+  dataCollection.push(newEntry);
+  res.status(201).json({ message: "New stat added", data: newEntry });
+});

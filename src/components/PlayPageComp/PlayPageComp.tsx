@@ -1,41 +1,52 @@
-import { useState } from 'react';
-import DoorButton from '../DoorButton';
-import type { Door, GameState, MontyType, CustomTable } from '../../logic/types';
-import { defaultDoors } from '../../logic/types';
-import { pickPrizeDoor, pickRandomMontyType, montyOpensDoor } from '../../logic/montyEngine';
-import type { DoorStatus } from '../DoorButton';
-import './PlayPageComp.css';
+// src/components/PlayPageComp/PlayPageComp.tsx
+// -------------------------------------------------------
+// Main Monty Hall game component — updated to use ExtendedCustomConfig
+// for custom mode, including per‐config switchRule logic
 
-import { Bar } from 'react-chartjs-2';
-import { Chart, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
+import { useState } from 'react'
+import DoorButton from '../DoorButton'
+import type {
+  Door,
+  GameState,
+  MontyType,
+  ExtendedCustomConfig
+} from '../../logic/types'
+import { defaultDoors } from '../../logic/types'
+import {
+  pickPrizeDoor,
+  pickRandomMontyType,
+  montyOpensDoor
+} from '../../logic/montyEngine'
+import type { DoorStatus } from '../DoorButton'
+import './PlayPageComp.css'
 
-Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+import { Bar } from 'react-chartjs-2'
+import { Chart, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js'
+
+Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend)
+
+function shouldOfferSwitchUntilOpen(
+  cfg: ExtendedCustomConfig,
+  montyOpens: Door | null
+): boolean {
+  return cfg.offerSwitchUntilOpen && montyOpens === null
+}
 
 interface MontyGameProps {
-  initialMontyType?: MontyType;
-  hideMontyTypeFromUser?: boolean;
-  customTable?: CustomTable
+  initialMontyType?: MontyType
+  hideMontyTypeFromUser?: boolean
+  customConfig?: ExtendedCustomConfig   // now expects ExtendedCustomConfig
 }
 
 interface PlayState extends GameState {
-  choosingSwitch: boolean;
+  choosingSwitch: boolean
 }
 
-
-/**
- * PlayPage – classic Monty Hall game for data collection.
- * MontyType is chosen randomly but never shown to the user.
- * Flow:
- *   1. User picks a door.
- *   2. Monty (random behavior) opens or not.
- *   3. Prompt “Switch or Stay?” for all behaviors.
- *      • Stay: finalize original pick.
- *      • Switch:
- *         – Standard/Evil: automatically switch to the only other door.
- *         – Secretive: enter second selection mode to choose among the two remaining doors.
- *   4. Reveal all doors and show prize.
- */
-export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = false, customTable, }: MontyGameProps) {
+export default function MontyGame({
+  initialMontyType,
+  hideMontyTypeFromUser = false,
+  customConfig,
+}: MontyGameProps) {
   const [state, setState] = useState<PlayState>({
     prizeDoor: pickPrizeDoor(),
     playerPick: null,
@@ -45,7 +56,7 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
     result: null,
     montyType: initialMontyType || pickRandomMontyType(),
     choosingSwitch: false,
-  });
+  })
 
   const [stats, setStats] = useState<any[]>([]);
 
@@ -99,38 +110,34 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
 
 
   const handleInitialPick = (door: Door) => {
-    if (state.playerPick !== null) return;
+    if (state.playerPick !== null) return
 
-    // Monty chooses a door to open, using a custom table if provided
+    // figure out which door Monty opens (or none)
     const mDoor = montyOpensDoor(
       state.prizeDoor,
       door,
       state.montyType,
-      customTable
-    );
+      customConfig
+    )
 
-    // If Monty opens the prize door, the game ends immediately.
-    // If it was the door the player originally picked, that's a win;
-    // otherwise it's a loss.
+    // if Monty immediately resolves (opens prize or player pick), we get result right away
     const immediateResult =
       mDoor === state.prizeDoor
         ? (door === state.prizeDoor ? 'win' : 'lose')
-        : null;
-    
-    if (immediateResult === 'lose' && state.montyType === 'evil') {
-      updateMontyChoice(state.montyType, 'lose', false);
-      callBackendObjs();
-    }
+        : null
 
-    // Offer a switch only if the game hasn’t already ended:
-    // - secretive always offers
-    // - otherwise offer if Monty actually opened a door
-    const offer =
-      immediateResult != null
-        ? false
-        : state.montyType === 'secretive'
-          ? true
-          : mDoor !== null;
+   // new offer logic: custom uses our helper, otherwise fallback
+   let offer: boolean
+   if (state.montyType === 'custom' && customConfig) {
+     offer = shouldOfferSwitchUntilOpen(customConfig, mDoor)
+   } else {
+     offer =
+       immediateResult != null
+         ? false
+         : state.montyType === 'secretive'
+           ? true
+           : mDoor !== null
+   }
 
     setState(s => ({
       ...s,
@@ -138,11 +145,11 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
       montyOpens: mDoor,
       switchOffered: offer,
       result: immediateResult,
-    }));
-  };
+    }))
+  }
 
   /**
-   * Handle “Switch” or “Stay” button click.
+   * Handle Switch or Stay”button click.
    * - Stay: finalize original pick immediately.
    * - Switch:
    *    - Standard/Evil: switch to the only remaining unopened door.
@@ -181,7 +188,7 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
   };
 
   /**
-   * In secretive “choosingSwitch” mode, allow clicking one of the
+   * In secretive choosingSwitch”mode, allow clicking one of the
    * two other doors to finalize.
    */
   const handleFinalPick = (door: Door) => {
@@ -192,7 +199,7 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
     callBackendObjs();
   };
 
-  /** Reset state for a new round, preserving MontyType */
+  /** Reset state for a new round, keep same MontyType */
   const resetGame = () => {
     setState({
       prizeDoor: pickPrizeDoor(),
@@ -242,36 +249,29 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
 
 
   return (
-    <div className={`monty-game-container ${state.result === 'win'  ? 'win' : state.result === 'lose' ? 'lose' : ''}`}>
+    <div className={`monty-game-container ${state.result === 'win' ? 'win' : state.result === 'lose' ? 'lose' : ''}`}>
       <h2 id="title-name">
-         {/* Either shows which Monty is being played, or shows just "Monty Hall Game" title */}
         {!hideMontyTypeFromUser
           ? `${state.montyType.charAt(0).toUpperCase() + state.montyType.slice(1)} Monty`
           : 'Monty Hall Game'}
       </h2>
-      
-      {/* Door row */}
+
       <div className="doors-row">
         {defaultDoors.map(door => {
-          let status: DoorStatus = 'closed';
-          // Reveal all at the end
+          let status: DoorStatus = 'closed'
           if (state.result != null) {
-            status = door === state.prizeDoor ? 'prize' : 'opened';
-          } 
-          // After initial pick, before final decision
-          else if (state.playerPick != null && state.finalPick == null) {
-            if (door === state.montyOpens) status = 'opened';
-            else if (door === state.playerPick) status = 'selected';
+            status = door === state.prizeDoor ? 'prize' : 'opened'
+          } else if (state.playerPick != null && state.finalPick == null) {
+            if (door === state.montyOpens) status = 'opened'
+            else if (door === state.playerPick) status = 'selected'
           }
-          // Decide click behavior
           const onClick = () => {
-            if (state.playerPick == null) handleInitialPick(door);
-            else if (state.choosingSwitch && door !== state.playerPick) handleFinalPick(door);
-          };
-          
-          // Disable door clicks when not appropriate
-          const disabled = Boolean(state.result) ||
-            (state.playerPick != null && !state.choosingSwitch && state.montyType !== 'secretive');
+            if (state.playerPick == null) handleInitialPick(door)
+            else if (state.choosingSwitch && door !== state.playerPick) handleFinalPick(door)
+          }
+          const disabled =
+            Boolean(state.result) ||
+            (state.playerPick != null && !state.choosingSwitch && state.montyType !== 'secretive')
 
           return (
             <DoorButton
@@ -280,9 +280,9 @@ export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = fa
               status={status}
               onClick={onClick}
               disabled={disabled}
-              gameResult = {state.result}
+              gameResult={state.result}
             />
-          );
+          )
         })}
       </div>
       

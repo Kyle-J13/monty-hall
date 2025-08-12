@@ -42,11 +42,31 @@ interface PlayState extends GameState {
   choosingSwitch: boolean
 }
 
-export default function MontyGame({
-  initialMontyType,
-  hideMontyTypeFromUser = false,
-  customConfig,
-}: MontyGameProps) {
+interface SimulationState {
+  isRunning: boolean;
+  numGames: number;
+  strategy: 'stay' | 'switch' | 'random';
+  results: {
+    wins: number;
+    losses: number;
+    gamesPlayed: number;
+  };
+}
+
+/**
+ * PlayPage – classic Monty Hall game for data collection.
+ * MontyType is chosen randomly but never shown to the user.
+ * Flow:
+ *   1. User picks a door.
+ *   2. Monty (random behavior) opens or not.
+ *   3. Prompt “Switch or Stay?” for all behaviors.
+ *      • Stay: finalize original pick.
+ *      • Switch:
+ *         – Standard/Evil: automatically switch to the only other door.
+ *         – Secretive: enter second selection mode to choose among the two remaining doors.
+ *   4. Reveal all doors and show prize.
+ */
+export default function MontyGame({ initialMontyType, hideMontyTypeFromUser = false, customTable, customConfig}: MontyGameProps) {
   const [state, setState] = useState<PlayState>({
     prizeDoor: pickPrizeDoor(),
     playerPick: null,
@@ -59,6 +79,17 @@ export default function MontyGame({
   })
 
   const [stats, setStats] = useState<any[]>([]);
+
+  const [simulation, setSimulation] = useState<SimulationState>({
+  isRunning: false,
+  numGames: 1000,
+  strategy: 'switch',
+  results: {
+    wins: 0,
+    losses: 0,
+    gamesPlayed: 0,
+  }
+});
 
   const filteredStats = stats.filter((entry) => entry.montyName === state.montyType);
 
@@ -108,7 +139,104 @@ export default function MontyGame({
       });
   };
 
+  const runSimulation = async () => {
+    setSimulation(prev => ({ 
+      ...prev, 
+      isRunning: true, 
+      results: { wins: 0, losses: 0, gamesPlayed: 0 } 
+    }));
 
+    let wins = 0;
+    let losses = 0;
+
+    for (let i = 0; i < simulation.numGames; i++) {
+      // Simulate one game
+      const prizeDoor = pickPrizeDoor();
+      const montyType = state.montyType;
+      const initialPick = defaultDoors[Math.floor(Math.random() * 3)];
+      
+      const montyOpens = montyOpensDoor(prizeDoor, initialPick, montyType, customTable);
+      
+      let finalPick = initialPick;
+      let switched = false;
+
+      // Handle immediate loss (evil Monty opens prize door)
+      if (montyOpens === prizeDoor && montyType === 'evil') {
+        losses++;
+        continue;
+      }
+
+      // Determine if switch is offered
+      const switchOffered = montyOpens === null ? false : 
+                          montyType === 'secretive' ? true : 
+                          montyOpens !== null;
+
+      if (switchOffered) {
+        // Apply strategy
+        let shouldSwitch = false;
+        
+        switch (simulation.strategy) {
+          case 'stay':
+            shouldSwitch = false;
+            break;
+          case 'switch':
+            shouldSwitch = true;
+            break;
+          case 'random':
+            shouldSwitch = Math.random() < 0.5;
+            break;
+        }
+
+        if (shouldSwitch) {
+          switched = true;
+          if (montyType === 'secretive') {
+            // For secretive, randomly pick one of the two remaining doors
+            const remainingDoors = defaultDoors.filter(d => d !== initialPick);
+            finalPick = remainingDoors[Math.floor(Math.random() * remainingDoors.length)];
+          } else {
+            // For standard/evil, switch to the only remaining door
+            finalPick = defaultDoors.find(d => d !== initialPick && d !== montyOpens)!;
+          }
+        }
+      }
+
+      // Determine outcome
+      const won = finalPick === prizeDoor;
+      if (won) {
+        wins++;
+      } else {
+        losses++;
+      }
+
+      // Update UI periodically during simulation
+      if (i % 100 === 0 || i === simulation.numGames - 1) {
+        setSimulation(prev => ({
+          ...prev,
+          results: {
+            wins,
+            losses,
+            gamesPlayed: i + 1
+          }
+        }));
+        
+        // Add a small delay to allow UI updates
+        await new Promise(resolve => setTimeout(resolve, 1));
+      }
+    }
+
+    setSimulation(prev => ({ ...prev, isRunning: false }));
+    callBackendObjs(); // Refresh stats from backend
+  };
+
+  const resetSimulation = () => {
+    setSimulation(prev => ({
+      ...prev,
+      results: { wins: 0, losses: 0, gamesPlayed: 0 }
+    }));
+  };
+
+
+  
   const handleInitialPick = (door: Door) => {
     if (state.playerPick !== null) return
 
@@ -225,13 +353,17 @@ export default function MontyGame({
     labels: ['Win', 'Loss'],
     datasets: [
       {
-        label: `Results for ${state.montyType}`,
+        label: `Manual Games - ${state.montyType}`,
         data: [winCount, loseCount],
         backgroundColor: ['#4caf50', '#f44336'],
       },
+      ...(simulation.results.gamesPlayed > 0 ? [{
+        label: `Simulation (${simulation.strategy})`,
+        data: [simulation.results.wins, simulation.results.losses],
+        backgroundColor: ['#81c784', '#e57373'],
+      }] : [])
     ],
   };
-
     
   const chartOptions = {
     plugins: {
@@ -313,6 +445,64 @@ export default function MontyGame({
 
       <div className="chart-container">
         <Bar data={chartData} options={chartOptions} />
+      </div>
+
+      <div className="simulation-controls">
+        <h3>Simulation Mode</h3>
+        
+        <div className='simulation-input'>
+          <label>
+            Games to simulate:
+            <input 
+              type="number" 
+              value={simulation.numGames}
+              onChange={(e) => setSimulation(prev => ({ ...prev, numGames: parseInt(e.target.value) || 1000 }))}
+              min="1"
+              max="10000"
+              disabled={simulation.isRunning}
+            />
+          </label>
+          
+          <label>
+            Strategy:
+            <select 
+              value={simulation.strategy}
+              onChange={(e) => setSimulation(prev => ({ ...prev, strategy: e.target.value as 'stay' | 'switch' | 'random' }))}
+              disabled={simulation.isRunning}
+            >
+              <option value="stay">Always Stay</option>
+              <option value="switch">Always Switch</option>
+              <option value="random">Random Choice</option>
+            </select>
+          </label>
+        </div>
+
+        <div>
+          <button 
+            onClick={runSimulation} 
+            disabled={simulation.isRunning}
+            className="simulation-button"
+          >
+            {simulation.isRunning ? 'Running...' : 'Run Simulation'}
+          </button>
+          
+          <button 
+            onClick={resetSimulation}
+            disabled={simulation.isRunning}
+            className="simulation-button-secondary"
+          >
+            Reset Simulation
+          </button>
+        </div>
+
+        {simulation.results.gamesPlayed > 0 && (
+          <div>
+            <h4>Simulation Results:</h4>
+            <p>Games Played: {simulation.results.gamesPlayed}</p>
+            <p>Wins: {simulation.results.wins} ({((simulation.results.wins / simulation.results.gamesPlayed) * 100).toFixed(1)}%)</p>
+            <p>Losses: {simulation.results.losses} ({((simulation.results.losses / simulation.results.gamesPlayed) * 100).toFixed(1)}%)</p>
+          </div>
+        )}
       </div>
     </div>
   );

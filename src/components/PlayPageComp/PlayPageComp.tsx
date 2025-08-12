@@ -171,13 +171,21 @@ export default function MontyGame({
       callBackendObjs();
     } else {
       // Switch requested
+      const opened = state.montyOpens;
+
+      // If Monty has NOT opened any door yet, let the user pick among the two remaining (secretive-like).
+      if (opened == null) {
+        setState(s => ({ ...s, choosingSwitch: true }));
+        return;
+      }
+
       if (state.montyType === 'secretive') {
         // Enter secondary selection mode:
         setState(s => ({ ...s, choosingSwitch: true }));
       } else {
-         // Only one choice for standard/evil
+        // Only one choice for standard/evil when one door is already opened
         const remaining = defaultDoors.find(
-          d => d !== state.playerPick && d !== state.montyOpens
+          d => d !== state.playerPick && d !== opened
         )!;
         const outcome = remaining === state.prizeDoor ? 'win' : 'lose';
         updateMontyChoice(state.montyType, outcome, true);

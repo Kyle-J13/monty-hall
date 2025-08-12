@@ -38,97 +38,88 @@ export function pickRandomMontyType(): MontyType {
 }
 
 /**
- * Custom mode: uses ExtendedCustomConfig for full control.
- * 1) If knowsPrize is true, pick according to openIfPickedPrize
- *    or openIfNotPickedPrize distributions.
- * 2) If knowsPrize is false, pick per-door probabilities unknownOpenProbs,
- *    remainder up to 1 is no open.
+ * Custom mode (matches ExtendedCustomConfig in types.ts):
+ * 1) Respect openChance (top-level gate).
+ * 2) If knowsPrize:
+ *    - whenPickedPrize (playerPick === prizeDoor):
+ *        openSelected | openClosestNonPrize | openFarthestNonPrize | none  (sum ~ 1)
+ *    - whenPickedNotPrize (playerPick !== prizeDoor):
+ *        openSelected | openPrize | openOtherNonPrize              (sum ~ 1)
+ * 3) If !knowsPrize:
+ *    - unknownPrize: door1 | door2 | door3                         (sum <= 1; remainder = none)
  */
 function decideExtendedCustomOpens(
   prizeDoor: Door,
   playerPick: Door,
   cfg: ExtendedCustomConfig
 ): Door | null {
+  // 0) Overall chance to open at all
+  if (Math.random() >= cfg.openChance) {
+    return null
+  }
+
+  // 1) Monty knows where the prize is
   if (cfg.knowsPrize) {
     if (playerPick === prizeDoor) {
-      // Distribution when playerPick == prizeDoor
-      const dist = cfg.openIfPickedPrize
+      const dist = cfg.whenPickedPrize
       const total =
         dist.openSelected +
         dist.openClosestNonPrize +
         dist.openFarthestNonPrize +
         dist.none
-      if (total <= 0) {
-        return null
-      }
+
+      if (total <= 0) return null
+
       let r = Math.random() * total
-      if (r < dist.openSelected) {
-        return playerPick
-      }
-      r -= dist.openSelected
-      if (r < dist.openClosestNonPrize) {
-        // left non-prize
-        const nonPrize = defaultDoors.filter(d => d !== prizeDoor)
-        const [left] = nonPrize.sort((a, b) => a - b)
+      if ((r -= dist.openSelected) < 0) return playerPick
+
+      if ((r -= dist.openClosestNonPrize) < 0) {
+        const nonPrize = defaultDoors.filter(d => d !== prizeDoor).sort((a, b) => a - b)
+        const [left] = nonPrize
         return left
       }
-      r -= dist.openClosestNonPrize
-      if (r < dist.openFarthestNonPrize) {
-        // right non-prize
-        const nonPrize = defaultDoors.filter(d => d !== prizeDoor)
-        const [, right] = nonPrize.sort((a, b) => a - b)
+
+      if ((r -= dist.openFarthestNonPrize) < 0) {
+        const nonPrize = defaultDoors.filter(d => d !== prizeDoor).sort((a, b) => a - b)
+        const [, right] = nonPrize
         return right
       }
+
       // none
       return null
     } else {
-      // Distribution when playerPick != prizeDoor
-      const dist = cfg.openIfNotPickedPrize
+      const dist = cfg.whenPickedNotPrize
       const total =
         dist.openSelected +
         dist.openPrize +
         dist.openOtherNonPrize
-      if (total <= 0) {
-        return null
-      }
+
+      if (total <= 0) return null
+
       let r = Math.random() * total
-      if (r < dist.openSelected) {
-        return playerPick
-      }
-      r -= dist.openSelected
-      if (r < dist.openPrize) {
-        return prizeDoor
-      }
-      r -= dist.openPrize
-      if (r < dist.openOtherNonPrize) {
-        // the other non-prize, non-picked door
-        return defaultDoors.find(d => d !== prizeDoor && d !== playerPick)!
+      if ((r -= dist.openSelected) < 0) return playerPick
+      if ((r -= dist.openPrize) < 0) return prizeDoor
+      if ((r -= dist.openOtherNonPrize) < 0) {
+        return defaultDoors.find(d => d !== prizeDoor && d !== playerPick)! // the other non-prize
       }
       return null
     }
-  } else {
-    // Monty does not know prize location: use per-door probabilities
-    const p1 = cfg.unknownOpenProbs[1] || 0
-    const p2 = cfg.unknownOpenProbs[2] || 0
-    const p3 = cfg.unknownOpenProbs[3] || 0
-    const total = p1 + p2 + p3
-    if (total <= 0) {
-      return null
-    }
-    let r = Math.random() * total
-    if (r < p1) {
-      return 1
-    }
-    r -= p1
-    if (r < p2) {
-      return 2
-    }
-    r -= p2
-    if (r < p3) {
-      return 3
-    }
-    return null
   }
+
+  // 2) Monty does NOT know the prize location
+  const p1 = cfg.unknownPrize.door1 || 0
+  const p2 = cfg.unknownPrize.door2 || 0
+  const p3 = cfg.unknownPrize.door3 || 0
+  const total = p1 + p2 + p3
+
+  // remainder up to 1 is "no open"
+  if (total <= 0) return null
+
+  let r = Math.random() * total
+  if ((r -= p1) < 0) return 1
+  if ((r -= p2) < 0) return 2
+  if ((r -= p3) < 0) return 3
+  return null
 }
 
 /**
@@ -146,11 +137,7 @@ export function montyOpensDoor(
     if (!customConfig) {
       throw new Error('ExtendedCustomConfig required for MontyType "custom"')
     }
-    return decideExtendedCustomOpens(
-      prizeDoor,
-      playerPick,
-      customConfig
-    )
+    return decideExtendedCustomOpens(prizeDoor, playerPick, customConfig)
   }
 
   // Legacy table-based logic

@@ -6,7 +6,8 @@
 // probabilities based on that choice.
 
 import { useState } from 'react'
-import type { Door, ExtendedCustomConfig } from '../logic/types'
+import type { ExtendedCustomConfig } from '../logic/types'
+import './CustomMontyForm.css';
 
 export function CustomMontyForm({
   onSubmit,
@@ -14,7 +15,7 @@ export function CustomMontyForm({
   onSubmit: (config: ExtendedCustomConfig) => void
 }) {
   // Common settings
-  const [openChance, setOpenChance] = useState(1)          // P(Monty opens any door at all)
+  const [openChance, setOpenChance] = useState(1) // P(Monty opens any door at all)
   const [offerSwitchUntilOpen, setOfferSwitchUntilOpen] = useState(true)
   const [knowsPrize, setKnowsPrize] = useState(true)
 
@@ -37,177 +38,233 @@ export function CustomMontyForm({
 
   const [error, setError] = useState<string>()
 
-  function validateAndSubmit() {
-    if (openChance < 0 || openChance > 1) {
-      setError('openChance must be between 0 and 1')
-      return
-    }
+  const pickedSum =
+    openSelectedIfPicked +
+    openClosestIfPicked +
+    openFarthestIfPicked +
+    noneIfPicked
 
+  const notSum =
+    openSelectedIfNot +
+    openPrizeIfNot +
+    openOtherIfNot
+
+  const unknownSum = unknownP1 + unknownP2 + unknownP3
+
+  const handleSubmit = () => {
+    // Validation
     if (knowsPrize) {
-      const sumPicked = openSelectedIfPicked + openClosestIfPicked + openFarthestIfPicked + noneIfPicked
-      if (Math.abs(sumPicked - 1) > 1e-6) {
-        setError('When knowsPrize=true and you picked prize, those four must sum to 1')
+      if (Math.abs(pickedSum - 1) > 1e-6) {
+        setError(
+          `When playerPick == prizeDoor, probabilities must sum to 1 (currently ${pickedSum.toFixed(2)})`
+        )
         return
       }
-      const sumNot = openSelectedIfNot + openPrizeIfNot + openOtherIfNot
-      if (Math.abs(sumNot - 1) > 1e-6) {
-        setError('When knowsPrize=true and you did not pick prize, those three must sum to 1')
+      if (Math.abs(notSum - 1) > 1e-6) {
+        setError(
+          `When playerPick != prizeDoor, probabilities must sum to 1 (currently ${notSum.toFixed(2)})`
+        )
         return
       }
     } else {
-      if (unknownP1 < 0 || unknownP1 > 1 || unknownP2 < 0 || unknownP2 > 1 || unknownP3 < 0 || unknownP3 > 1) {
-        setError('All unknown-open probabilities must be between 0 and 1')
+      if (unknownSum > 1 + 1e-6) {
+        setError(
+          `Unknown prize probabilities must sum to ≤ 1 (currently ${unknownSum.toFixed(2)})`
+        )
         return
       }
     }
 
     setError(undefined)
 
-    onSubmit({
+    const config: ExtendedCustomConfig = {
       openChance,
-      prizeChance: 0,         
-      nonPrizeLeftChance: 0,   
-      nonPrizeRightChance: 0,   
-
       offerSwitchUntilOpen,
       knowsPrize,
-
-      openIfPickedPrize: {
+      whenPickedPrize: {
         openSelected: openSelectedIfPicked,
         openClosestNonPrize: openClosestIfPicked,
         openFarthestNonPrize: openFarthestIfPicked,
         none: noneIfPicked,
       },
-
-      openIfNotPickedPrize: {
+      whenPickedNotPrize: {
         openSelected: openSelectedIfNot,
         openPrize: openPrizeIfNot,
         openOtherNonPrize: openOtherIfNot,
       },
-
-      unknownOpenProbs: {
-        1: unknownP1,
-        2: unknownP2,
-        3: unknownP3,
+      unknownPrize: {
+        door1: unknownP1,
+        door2: unknownP2,
+        door3: unknownP3,
       },
-    })
+    }
+
+    onSubmit(config)
   }
 
   return (
     <div className="custom-monty-form">
       <h3>Configure Monty Behavior</h3>
 
-      <label>
-        Overall openChance:
-        <input
-          type="number" step="0.01" min="0" max="1"
-          value={openChance}
-          onChange={e => setOpenChance(parseFloat(e.target.value) || 0)}
-        />
-      </label>
-
-      <label>
-        Offer switch until Monty opens?
-        <input
-          type="checkbox"
-          checked={offerSwitchUntilOpen}
-          onChange={e => setOfferSwitchUntilOpen(e.target.checked)}
-        />
-      </label>
-
-      <label>
-        Monty knows prize?
-        <input
-          type="checkbox"
-          checked={knowsPrize}
-          onChange={e => setKnowsPrize(e.target.checked)}
-        />
-      </label>
+      <div>
+        <label>
+          Overall openChance:
+          <input
+            type="number"
+            step="0.01"
+            value={openChance}
+            onChange={(e) => setOpenChance(parseFloat(e.target.value) || 0)}
+          />
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={offerSwitchUntilOpen}
+            onChange={(e) => setOfferSwitchUntilOpen(e.target.checked)}
+          />
+          Offer switch until Monty opens
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={knowsPrize}
+            onChange={(e) => setKnowsPrize(e.target.checked)}
+          />
+          Monty knows prize?
+        </label>
+      </div>
 
       {knowsPrize ? (
         <>
-          <h4>When playerPick == prizeDoor (sum = 1)</h4>
-          <label>
-            openSelected:
-            <input type="number" step="0.01" min="0" max="1"
-              value={openSelectedIfPicked}
-              onChange={e => setOpenSelectedIfPicked(parseFloat(e.target.value) || 0)}
-            />
-          </label>
-          <label>
-            openClosestNonPrize:
-            <input type="number" step="0.01" min="0" max="1"
-              value={openClosestIfPicked}
-              onChange={e => setOpenClosestIfPicked(parseFloat(e.target.value) || 0)}
-            />
-          </label>
-          <label>
-            openFarthestNonPrize:
-            <input type="number" step="0.01" min="0" max="1"
-              value={openFarthestIfPicked}
-              onChange={e => setOpenFarthestIfPicked(parseFloat(e.target.value) || 0)}
-            />
-          </label>
-          <label>
-            none:
-            <input type="number" step="0.01" min="0" max="1"
-              value={noneIfPicked}
-              onChange={e => setNoneIfPicked(parseFloat(e.target.value) || 0)}
-            />
-          </label>
+          <fieldset>
+            <legend>When playerPick == prizeDoor (sum = {pickedSum.toFixed(2)})</legend>
+            <label>
+              openSelected:
+              <input
+                type="number"
+                step="0.01"
+                value={openSelectedIfPicked}
+                onChange={(e) =>
+                  setOpenSelectedIfPicked(parseFloat(e.target.value) || 0)
+                }
+              />
+            </label>
+            <label>
+              openClosestNonPrize:
+              <input
+                type="number"
+                step="0.01"
+                value={openClosestIfPicked}
+                onChange={(e) =>
+                  setOpenClosestIfPicked(parseFloat(e.target.value) || 0)
+                }
+              />
+            </label>
+            <label>
+              openFarthestNonPrize:
+              <input
+                type="number"
+                step="0.01"
+                value={openFarthestIfPicked}
+                onChange={(e) =>
+                  setOpenFarthestIfPicked(parseFloat(e.target.value) || 0)
+                }
+              />
+            </label>
+            <label>
+              none:
+              <input
+                type="number"
+                step="0.01"
+                value={noneIfPicked}
+                onChange={(e) =>
+                  setNoneIfPicked(parseFloat(e.target.value) || 0)
+                }
+              />
+            </label>
+          </fieldset>
 
-          <h4>When playerPick != prizeDoor (sum = 1)</h4>
-          <label>
-            openSelected:
-            <input type="number" step="0.01" min="0" max="1"
-              value={openSelectedIfNot}
-              onChange={e => setOpenSelectedIfNot(parseFloat(e.target.value) || 0)}
-            />
-          </label>
-          <label>
-            openPrize:
-            <input type="number" step="0.01" min="0" max="1"
-              value={openPrizeIfNot}
-              onChange={e => setOpenPrizeIfNot(parseFloat(e.target.value) || 0)}
-            />
-          </label>
-          <label>
-            openOtherNonPrize:
-            <input type="number" step="0.01" min="0" max="1"
-              value={openOtherIfNot}
-              onChange={e => setOpenOtherIfNot(parseFloat(e.target.value) || 0)}
-            />
-          </label>
+          <fieldset>
+            <legend>When playerPick != prizeDoor (sum = {notSum.toFixed(2)})</legend>
+            <label>
+              openSelected:
+              <input
+                type="number"
+                step="0.01"
+                value={openSelectedIfNot}
+                onChange={(e) =>
+                  setOpenSelectedIfNot(parseFloat(e.target.value) || 0)
+                }
+              />
+            </label>
+            <label>
+              openPrize:
+              <input
+                type="number"
+                step="0.01"
+                value={openPrizeIfNot}
+                onChange={(e) =>
+                  setOpenPrizeIfNot(parseFloat(e.target.value) || 0)
+                }
+              />
+            </label>
+            <label>
+              openOtherNonPrize:
+              <input
+                type="number"
+                step="0.01"
+                value={openOtherIfNot}
+                onChange={(e) =>
+                  setOpenOtherIfNot(parseFloat(e.target.value) || 0)
+                }
+              />
+            </label>
+          </fieldset>
         </>
       ) : (
-        <>
-          <h4>Unknown prize — per-door open probs</h4>
+        <fieldset>
+          <legend>
+            Monty does not know prize (sum = {unknownSum.toFixed(2)}, remainder is no-open)
+          </legend>
           <label>
             door 1:
-            <input type="number" step="0.01" min="0" max="1"
+            <input
+              type="number"
+              step="0.01"
               value={unknownP1}
-              onChange={e => setUnknownP1(parseFloat(e.target.value) || 0)}
+              onChange={(e) =>
+                setUnknownP1(parseFloat(e.target.value) || 0)
+              }
             />
           </label>
           <label>
             door 2:
-            <input type="number" step="0.01" min="0" max="1"
+            <input
+              type="number"
+              step="0.01"
               value={unknownP2}
-              onChange={e => setUnknownP2(parseFloat(e.target.value) || 0)}
+              onChange={(e) =>
+                setUnknownP2(parseFloat(e.target.value) || 0)
+              }
             />
           </label>
           <label>
             door 3:
-            <input type="number" step="0.01" min="0" max="1"
+            <input
+              type="number"
+              step="0.01"
               value={unknownP3}
-              onChange={e => setUnknownP3(parseFloat(e.target.value) || 0)}
+              onChange={(e) =>
+                setUnknownP3(parseFloat(e.target.value) || 0)
+              }
             />
           </label>
-        </>
+        </fieldset>
       )}
 
       {error && <div className="error">{error}</div>}
-      <button onClick={validateAndSubmit}>Use this configuration</button>
+
+      <button onClick={handleSubmit}>Use this configuration</button>
     </div>
   )
 }

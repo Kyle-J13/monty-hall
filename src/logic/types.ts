@@ -15,41 +15,38 @@ export type MontyType =
 
 // Extended configuration for 'custom' mode:
 //  - openChance:              P(Monty opens any door at all)
-//  - prizeChance:             P(Monty opens the prize door | he opens a door)
-//  - nonPrizeLeftChance:      P(open left non-prize | opening a non-prize door)
-//  - nonPrizeRightChance:     P(open right non-prize | opening a non-prize door)
 //  - offerSwitchUntilOpen:    whether Monty offers switch until he opens prize or player door
 //  - knowsPrize:              whether Monty knows where the prize is when choosing a door
-//  - openIfPickedPrize:       distribution (sums to 1) of actions when playerPick == prizeDoor:
+//  - whenPickedPrize:         distribution (sums to 1) of actions when playerPick == prizeDoor:
 //      * openSelected, openClosestNonPrize, openFarthestNonPrize, none
-//  - openIfNotPickedPrize:    distribution (sums to 1) of actions when playerPick != prizeDoor:
+//  - whenPickedNotPrize:      distribution (sums to 1) of actions when playerPick != prizeDoor:
 //      * openSelected, openPrize, openOtherNonPrize
-//  - unknownOpenProbs:        per-door open probabilities when knowsPrize is false;
-//                             remainder up to 1 is "no open"
+//  - unknownPrize:            per-door open probabilities when knowsPrize is false;
+//                              remainder up to 1 is "no open"
 
 export interface ExtendedCustomConfig {
   openChance: number;
-  prizeChance: number;
-  nonPrizeLeftChance: number;
-  nonPrizeRightChance: number;
-
   offerSwitchUntilOpen: boolean;
   knowsPrize: boolean;
 
-  openIfPickedPrize: {
+  whenPickedPrize: {
     openSelected: number;
     openClosestNonPrize: number;
     openFarthestNonPrize: number;
     none: number;
   };
 
-  openIfNotPickedPrize: {
+  whenPickedNotPrize: {
     openSelected: number;
     openPrize: number;
     openOtherNonPrize: number;
   };
 
-  unknownOpenProbs: Record<Door, number>;
+  unknownPrize: {
+    door1: number;
+    door2: number;
+    door3: number;
+  };
 }
 
 // Complete state for one Monty Hall round

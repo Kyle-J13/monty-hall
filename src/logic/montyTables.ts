@@ -1,25 +1,19 @@
 // src/logic/montyTables.ts
+// -------------------------------------------------------
+// Defines MontyAction, built-in probability tables for standard/evil/secretive modes,
+// and a helper to map a selected action row to the actual door Monty opens.
 
 import { defaultDoors } from './types'
 import type { Door } from './types'
 
-/**
- * Describes each action Monty can take:
- * - 'OpenPrize': Monty opens the prize door 
- * - 'OpenPlayerPick': Monty opens the door the player chose
- * - 'OpenOther': Monty opens one of the other non-prize doors
- * - 'None': Monty opens no door
- */
+/** Describes each action Monty can take */
 export type MontyAction =
-  | 'OpenPrize'
-  | 'OpenPlayerPick'
-  | 'OpenOther'
-  | 'None'
+  | 'OpenPrize'       // Monty opens the prize door
+  | 'OpenPlayerPick'  // Monty opens the door the player chose
+  | 'OpenOther'       // Monty opens one of the other non-prize doors
+  | 'None'            // Monty opens no door
 
-/**
- * The four MontyAction values, in the same order as the rows
- * in each probability table below.
- */
+/** The actions in the same order as table rows */
 export const MontyActions: MontyAction[] = [
   'OpenPrize',
   'OpenPlayerPick',
@@ -28,59 +22,41 @@ export const MontyActions: MontyAction[] = [
 ]
 
 /**
- * A 2 column probability table for each MontyAction:
- * - Column 0: when player's pick matches the prize
- * - Column 1: when player's pick does not match the prize
- *
- * Rows correspond to MontyActions[0] through MontyActions[3].
+ * Probability table type:
+ * Each row is [when pick equals prize, when pick not equal prize]
  */
 export type ProbabilityTable = [number, number][]
 
-/**
- * Standard Monty behavior:
- * - If player picked the prize: pick one door at random
- * - If player did not pick the prize: open the only other non-prize door
- */
+/** Standard Monty: always opens a non-prize door */
 export const standardTable: ProbabilityTable = [
-  /* OpenPrize      */ [0, 0],
-  /* OpenPlayerPick */ [0, 0],
-  /* OpenOther      */ [1, 1],
-  /* None           */ [0, 0],
+  [0, 0], // OpenPrize
+  [0, 0], // OpenPlayerPick
+  [1, 1], // OpenOther
+  [0, 0], // None
 ]
 
-/**
- * Evil Monty behavior:
- * - If player picked the prize: pick one door at random
- * - If player did not pick the prize: open the door
- */
+/** Evil Monty: opens prize door if player did not pick it */
 export const evilTable: ProbabilityTable = [
-  /* OpenPrize      */ [0, 1],
-  /* OpenPlayerPick */ [0, 0],
-  /* OpenOther      */ [1, 0],
-  /* None           */ [0, 0],
+  [0, 1], // OpenPrize
+  [0, 0], // OpenPlayerPick
+  [1, 0], // OpenOther
+  [0, 0], // None
 ]
 
-/**
- * Secretive Monty behavior:
- * - Monty never opens a door to hide his strategy
- */
+/** Secretive Monty: never opens any door until final reveal */
 export const secretiveTable: ProbabilityTable = [
-  /* OpenPrize      */ [0, 0],
-  /* OpenPlayerPick */ [0, 0],
-  /* OpenOther      */ [0, 0],
-  /* None           */ [1, 1],
+  [0, 0], // OpenPrize
+  [0, 0], // OpenPlayerPick
+  [0, 0], // OpenOther
+  [1, 1], // None
 ]
 
 /**
- * Given a selected row index, return which door Monty opens:
- * - rowIndex 0: prizeDoor
- * - rowIndex 1: playerPick
- * - rowIndex 2: the other non-prize door
- * - any other: none
- *
- * @param rowIndex  index of the action row in the table
- * @param prizeDoor door hiding the prize
- * @param playerPick door the player chose
+ * Map a selected table row to the actual door:
+ * rowIndex 0 -> prizeDoor
+ * rowIndex 1 -> playerPick
+ * rowIndex 2 -> the other non-prize, non-picked door
+ * any other row -> null (no door)
  */
 export function mapRowIndexToDoor(
   rowIndex: number,
@@ -93,7 +69,6 @@ export function mapRowIndexToDoor(
     case 1:
       return playerPick
     case 2:
-      // find the one door that is neither prize nor player pick
       return defaultDoors.find(d => d !== prizeDoor && d !== playerPick)!
     default:
       return null

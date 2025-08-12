@@ -1,26 +1,66 @@
-// Door is a numeric identifier to allow N-door games in future
-export type Door = number;
+// src/logic/types.ts
+// -------------------------------------------------------
+// Core type definitions for the Monty Hall game.
+// Includes ExtendedCustomConfig for fully customizable Monty behavior.
 
-// Default set of doors for a 3-door Monty Hall game
-export const defaultDoors: Door[] = [1, 2, 3];
+export type Door = number
+export const defaultDoors: Door[] = [1, 2, 3]
 
-// Supported Monty behavior models
-export type MontyType = 
-  | 'standard' 
-  | 'evil' 
-  | 'secretive'
-  | 'custom'
+// Supported Monty behavior modes
+export type MontyType =
+  | "standard"
+  | "evil"
+  | "secretive"
+  | "custom"
 
-// new shape for a custom table (4 rows × 2 columns)
-export type CustomTable = [number,number][]
+/**
+ * ExtendedCustomConfig
+ * Purpose -> Defines all probability settings for 'custom' Monty mode.
+ * Fields ->
+ *   openChance              -> Probability that Monty opens any door at all.
+ *   offerSwitchUntilOpen    -> Whether to keep offering switch until Monty opens prize or player's door.
+ *   knowsPrize              -> Whether Monty knows prize location.
+ *   whenPickedPrize         -> Distribution of actions when playerPick == prizeDoor (sums to 1):
+ *                                openSelected, openClosestNonPrize, openFarthestNonPrize, none
+ *   whenPickedNotPrize      -> Distribution of actions when playerPick != prizeDoor (sums to 1):
+ *                                openSelected, openPrize, openOtherNonPrize
+ *   unknownPrize            -> Per-door open probabilities when knowsPrize is false; remaining probability is "no open".
+ */
+export interface ExtendedCustomConfig {
+  openChance: number
+  offerSwitchUntilOpen: boolean
+  knowsPrize: boolean
 
-// GameState describes all relevant data for a single round
+  whenPickedPrize: {
+    openSelected: number
+    openClosestNonPrize: number
+    openFarthestNonPrize: number
+    none: number
+  }
+
+  whenPickedNotPrize: {
+    openSelected: number
+    openPrize: number
+    openOtherNonPrize: number
+  }
+
+  unknownPrize: {
+    door1: number
+    door2: number
+    door3: number
+  }
+}
+
+/**
+ * GameState
+ * Purpose -> Tracks all data for a single Monty Hall round.
+ */
 export interface GameState {
-  prizeDoor: Door;               // Door hiding the prize
-  playerPick: Door | null;       // Player’s initial selection
-  montyOpens: Door | null;       // Door Monty opens
-  switchOffered: boolean;        // Is player offered a switch?
-  finalPick: Door | null;        // Player’s final choice
-  result: 'win' | 'lose' | null; // Outcome of the game
-  montyType: MontyType;          // Which Monty logic was used
+  prizeDoor: Door              // Door hiding the prize
+  playerPick: Door | null      // Player's initial choice
+  montyOpens: Door | null      // Door Monty opens, or null if none
+  switchOffered: boolean       // Was a switch option presented
+  finalPick: Door | null       // Player's final choice
+  result: "win" | "lose" | null// Outcome of the game
+  montyType: MontyType         // Active Monty behavior mode
 }

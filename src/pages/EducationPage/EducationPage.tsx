@@ -1,5 +1,5 @@
 // src/pages/EducationPage.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './EducationPage.css';
 
 interface TreeNode {
@@ -14,7 +14,7 @@ interface TreeNode {
 }
 
 export default function EducationPage() {
-  const [selectedPath, setSelectedPath] = useState<string[]>([]);
+  const [_selectedPath, setSelectedPath] = useState<string[]>([]);
   const [showProbabilities, setShowProbabilities] = useState(true);
   const [expandedNodes, setExpandedNodes] = useState<string[]>(['root']);
 

@@ -269,10 +269,13 @@ export default function MontyGame({
     )
 
     // Immediate result if Monty reveals the prize or opens player's door
-    const immediateResult =
+    // CHANGED: Only auto-lose on opening player's door when Monty knows the prize (prevents softlock in custom unknown).
+    let immediateResult: "win" | "lose" | null =
       mDoor === state.prizeDoor
         ? (door === state.prizeDoor ? "win" : "lose")
-        : (mDoor === door ? "lose" : null)
+        : (mDoor === door
+            ? ((state.montyType !== "custom" || !!customConfig?.knowsPrize) ? "lose" : null)
+            : null)
 
     // Decide whether to offer a switch
     let offer: boolean
@@ -287,6 +290,22 @@ export default function MontyGame({
           : state.montyType === "secretive"
             ? true
             : mDoor !== null
+    }
+
+    // CHANGED: If no switch is offered and the game isn't decided, auto-resolve as if the player stayed.
+    if (!offer && immediateResult == null) {
+      const outcome: "win" | "lose" = door === state.prizeDoor ? "win" : "lose"
+      updateMontyChoice(state.montyType, outcome, false)
+      setState(s => ({
+        ...s,
+        playerPick: door,
+        montyOpens: mDoor,
+        switchOffered: false,
+        finalPick: door,
+        result: outcome,
+      }))
+      callBackendObjs()
+      return
     }
 
     setState(s => ({
@@ -472,7 +491,7 @@ export default function MontyGame({
             />
           </label>
 
-          <label>
+        <label>
             Strategy:
             <select
               value={simulation.strategy}

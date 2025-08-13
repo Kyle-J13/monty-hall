@@ -63,16 +63,16 @@ export function CustomMontyForm({
   const handleSubmit = () => {
     if (knowsPrize) {
       if (Math.abs(pickedSum - 1) > 1e-6) {
-        setError(`When playerPick == prizeDoor, probabilities must sum to 1 (currently ${pickedSum.toFixed(2)})`)
+        setError(`When your first pick hides the prize, probabilities must sum to 1 (currently ${pickedSum.toFixed(2)})`)
         return
       }
       if (Math.abs(notSum - 1) > 1e-6) {
-        setError(`When playerPick != prizeDoor, probabilities must sum to 1 (currently ${notSum.toFixed(2)})`)
+        setError(`When your first pick is wrong, probabilities must sum to 1 (currently ${notSum.toFixed(2)})`)
         return
       }
     } else {
       if (unknownSum > 1 + 1e-6) {
-        setError(`Unknown prize probabilities must sum to ≤ 1 (currently ${unknownSum.toFixed(2)})`)
+        setError(`Door-opening probabilities must sum to ≤ 1 (currently ${unknownSum.toFixed(2)})`)
         return
       }
     }
@@ -106,10 +106,10 @@ export function CustomMontyForm({
 
   return (
     <div className="custom-monty-form">
-      <h3>Configure Monty Behavior</h3>
+      <h3>Configure Monty’s Behavior</h3>
 
       <div className="row">
-        <label className="label">Overall openChance</label>
+        <label className="label">Chance Monty opens any door at all</label>
         <input
           className="input sm"
           type="number"
@@ -123,7 +123,7 @@ export function CustomMontyForm({
             checked={offerSwitchUntilOpen}
             onChange={(e) => setOfferSwitchUntilOpen(e.target.checked)}
           />
-          Offer switch until Monty opens
+          Keep offering “Switch” until Monty opens a prize or your chosen door
         </label>
         <label className="checkbox">
           <input
@@ -131,7 +131,7 @@ export function CustomMontyForm({
             checked={knowsPrize}
             onChange={(e) => setKnowsPrize(e.target.checked)}
           />
-          Monty knows prize?
+          Monty knows where the prize is
         </label>
       </div>
 
@@ -139,26 +139,26 @@ export function CustomMontyForm({
         <>
           <fieldset className="group">
             <legend>
-              When playerPick == prizeDoor
+              If your first pick is the prize door
               {Math.abs(pickedSum - 1) < 1e-6
                 ? <span className="ok">OK</span>
                 : <span className="bad">{pickedSum.toFixed(2)}</span>}
             </legend>
             <div className="grid-4">
               <label className="label">
-                openSelected
+                Open your chosen door
                 <input className="input" type="number" step="0.01" value={openSelectedIfPicked} onChange={(e) => setOpenSelectedIfPicked(parseFloat(e.target.value) || 0)} />
               </label>
               <label className="label">
-                openClosestNonPrize
+                Open the other door nearest your pick
                 <input className="input" type="number" step="0.01" value={openClosestIfPicked} onChange={(e) => setOpenClosestIfPicked(parseFloat(e.target.value) || 0)} />
               </label>
               <label className="label">
-                openFarthestNonPrize
+                Open the other door farthest from your pick
                 <input className="input" type="number" step="0.01" value={openFarthestIfPicked} onChange={(e) => setOpenFarthestIfPicked(parseFloat(e.target.value) || 0)} />
               </label>
               <label className="label">
-                none
+                Don’t open any door
                 <input className="input" type="number" step="0.01" value={noneIfPicked} onChange={(e) => setNoneIfPicked(parseFloat(e.target.value) || 0)} />
               </label>
             </div>
@@ -166,22 +166,22 @@ export function CustomMontyForm({
 
           <fieldset className="group">
             <legend>
-              When playerPick != prizeDoor
+              If your first pick is NOT the prize door
               {Math.abs(notSum - 1) < 1e-6
                 ? <span className="ok">OK</span>
                 : <span className="bad">{notSum.toFixed(2)}</span>}
             </legend>
             <div className="grid-3">
               <label className="label">
-                openSelected
+                Open your chosen door
                 <input className="input" type="number" step="0.01" value={openSelectedIfNot} onChange={(e) => setOpenSelectedIfNot(parseFloat(e.target.value) || 0)} />
               </label>
               <label className="label">
-                openPrize
+                Open the prize door
                 <input className="input" type="number" step="0.01" value={openPrizeIfNot} onChange={(e) => setOpenPrizeIfNot(parseFloat(e.target.value) || 0)} />
               </label>
               <label className="label">
-                openOtherNonPrize
+                Open the other non-prize door
                 <input className="input" type="number" step="0.01" value={openOtherIfNot} onChange={(e) => setOpenOtherIfNot(parseFloat(e.target.value) || 0)} />
               </label>
             </div>
@@ -190,22 +190,26 @@ export function CustomMontyForm({
       ) : (
         <fieldset className="group">
           <legend>
-            Monty does not know prize
+            Monty does NOT know where the prize is
             {unknownSum <= 1 + 1e-6
               ? <span className="ok">OK</span>
               : <span className="bad">{unknownSum.toFixed(2)}</span>}
           </legend>
+          <p style={{ fontSize: "0.9em", color: "#ccc" }}>
+            Set the probability Monty opens each specific door.  
+            Any leftover probability means Monty opens no door.
+          </p>
           <div className="grid-3">
             <label className="label">
-              door 1
+              Chance Monty opens door 1
               <input className="input" type="number" step="0.01" value={unknownP1} onChange={(e) => setUnknownP1(parseFloat(e.target.value) || 0)} />
             </label>
             <label className="label">
-              door 2
+              Chance Monty opens door 2
               <input className="input" type="number" step="0.01" value={unknownP2} onChange={(e) => setUnknownP2(parseFloat(e.target.value) || 0)} />
             </label>
             <label className="label">
-              door 3
+              Chance Monty opens door 3
               <input className="input" type="number" step="0.01" value={unknownP3} onChange={(e) => setUnknownP3(parseFloat(e.target.value) || 0)} />
             </label>
           </div>

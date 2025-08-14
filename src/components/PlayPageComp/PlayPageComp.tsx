@@ -389,7 +389,9 @@ export default function MontyGame({
     labels: ["Win", "Loss"],
     datasets: [
       {
-        label: `Manual Games - ${state.montyType}`,
+        label: hideMontyTypeFromUser 
+          ? "Manual Games" 
+          : `Manual Games - ${state.montyType}`,
         data: [winCount, loseCount],
         backgroundColor: ["#4caf50", "#f44336"],
       },

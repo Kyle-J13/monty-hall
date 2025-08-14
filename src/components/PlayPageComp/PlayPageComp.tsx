@@ -114,7 +114,7 @@ export default function MontyGame({
    * updateMontyChoice
    * Purpose -> Report a single game outcome to the backend.
    */
-  const updateMontyChoice = (montyKey: string, result: "win" | "lose", switched: boolean) => {
+  const updateMontyChoice = (montyKey: string, result: "win" | "lose", _switched: boolean) => {
     const field = result === "win" ? 1 : 0
 
     fetch(`/api/stats`, {
@@ -122,7 +122,7 @@ export default function MontyGame({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         montyName: montyKey,
-        switched,
+        _switched,
         won: field
       })
     })
@@ -180,7 +180,7 @@ export default function MontyGame({
       const opened = montyOpensDoor(prizeDoor, initialPick, montyType, customConfig)
 
       let finalPick = initialPick
-      let switched = false
+      let _switched = false
 
       // Early termination if Monty opens the prize door or the player's door
       if (opened === prizeDoor) {
@@ -212,7 +212,7 @@ export default function MontyGame({
         }
 
         if (shouldSwitch) {
-          switched = true
+          _switched = true
           if (montyType === "secretive" || opened == null) {
             const remainingDoors = defaultDoors.filter(d => d !== initialPick)
             finalPick = remainingDoors[Math.floor(Math.random() * remainingDoors.length)]
@@ -269,10 +269,13 @@ export default function MontyGame({
     )
 
     // Immediate result if Monty reveals the prize or opens player's door
-    const immediateResult =
+    // CHANGED: Only auto-lose on opening player's door when Monty knows the prize (prevents softlock in custom unknown).
+    let immediateResult: "win" | "lose" | null =
       mDoor === state.prizeDoor
         ? (door === state.prizeDoor ? "win" : "lose")
-        : (mDoor === door ? "lose" : null)
+        : (mDoor === door
+            ? ((state.montyType !== "custom" || !!customConfig?.knowsPrize) ? "lose" : null)
+            : null)
 
     // Decide whether to offer a switch
     let offer: boolean
@@ -287,6 +290,22 @@ export default function MontyGame({
           : state.montyType === "secretive"
             ? true
             : mDoor !== null
+    }
+
+    // CHANGED: If no switch is offered and the game isn't decided, auto-resolve as if the player stayed.
+    if (!offer && immediateResult == null) {
+      const outcome: "win" | "lose" = door === state.prizeDoor ? "win" : "lose"
+      updateMontyChoice(state.montyType, outcome, false)
+      setState(s => ({
+        ...s,
+        playerPick: door,
+        montyOpens: mDoor,
+        switchOffered: false,
+        finalPick: door,
+        result: outcome,
+      }))
+      callBackendObjs()
+      return
     }
 
     setState(s => ({
@@ -339,7 +358,7 @@ export default function MontyGame({
 
   /**
    * handleFinalPick
-   * Purpose -> When in secondary selection mode, finalize the switched pick.
+   * Purpose -> When in secondary selection mode, finalize the _switched pick.
    */
   const handleFinalPick = (door: Door) => {
     if (!state.choosingSwitch || state.finalPick != null || state.result != null) return
@@ -474,7 +493,7 @@ export default function MontyGame({
             />
           </label>
 
-          <label>
+        <label>
             Strategy:
             <select
               value={simulation.strategy}

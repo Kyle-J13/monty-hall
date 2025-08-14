@@ -1,211 +1,9 @@
 // src/pages/EducationPage.tsx
-import React, { useState } from 'react';
+import React from 'react';
+import MontyTreeTabs from '../../components/MontyTreeTabs/MontyTreeTabs';
 import './EducationPage.css';
 
-interface TreeNode {
-  id: string;
-  label: string;
-  probability: string;
-  children?: TreeNode[];
-  isWin?: boolean;
-  strategy?: 'stay' | 'switch';
-  x?: number;
-  y?: number;
-}
-
 export default function EducationPage() {
-  const [selectedPath, setSelectedPath] = useState<string[]>([]);
-  const [showProbabilities, setShowProbabilities] = useState(true);
-  const [expandedNodes, setExpandedNodes] = useState<string[]>(['root']);
-
-  // Tree structure for Monty Hall problem with positioning
-  const montyHallTree: TreeNode = {
-    id: 'root',
-    label: 'Start Game',
-    probability: '',
-    x: 300,
-    y: 40,
-    children: [
-      {
-        id: 'car-door1',
-        label: 'Car behind Door 1',
-        probability: '1/3',
-        x: 120,
-        y: 120,
-        children: [
-          {
-            id: 'pick-door1-car1',
-            label: 'You pick Door 1',
-            probability: '1/3',
-            x: 120,
-            y: 200,
-            children: [
-              {
-                id: 'stay-car1',
-                label: 'Stay',
-                probability: '1/3',
-                isWin: true,
-                strategy: 'stay',
-                x: 80,
-                y: 280
-              },
-              {
-                id: 'switch-car1',
-                label: 'Switch',
-                probability: '0',
-                isWin: false,
-                strategy: 'switch',
-                x: 160,
-                y: 280
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'car-door2',
-        label: 'Car behind Door 2',
-        probability: '1/3',
-        x: 300,
-        y: 120,
-        children: [
-          {
-            id: 'pick-door1-car2',
-            label: 'You pick Door 1',
-            probability: '1/3',
-            x: 300,
-            y: 200,
-            children: [
-              {
-                id: 'stay-car2',
-                label: 'Stay',
-                probability: '0',
-                isWin: false,
-                strategy: 'stay',
-                x: 260,
-                y: 280
-              },
-              {
-                id: 'switch-car2',
-                label: 'Switch',
-                probability: '1/3',
-                isWin: true,
-                strategy: 'switch',
-                x: 340,
-                y: 280
-              }
-            ]
-          }
-        ]
-      },
-      {
-        id: 'car-door3',
-        label: 'Car behind Door 3',
-        probability: '1/3',
-        x: 480,
-        y: 120,
-        children: [
-          {
-            id: 'pick-door1-car3',
-            label: 'You pick Door 1',
-            probability: '1/3',
-            x: 480,
-            y: 200,
-            children: [
-              {
-                id: 'stay-car3',
-                label: 'Stay',
-                probability: '0',
-                isWin: false,
-                strategy: 'stay',
-                x: 440,
-                y: 280
-              },
-              {
-                id: 'switch-car3',
-                label: 'Switch',
-                probability: '1/3',
-                isWin: true,
-                strategy: 'switch',
-                x: 520,
-                y: 280
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
-
-  const getConnectionLines = (node: TreeNode): Array<{from: {x: number, y: number}, to: {x: number, y: number}}> => {
-    const lines: Array<{from: {x: number, y: number}, to: {x: number, y: number}}> = [];
-    
-    if (node.children && expandedNodes.includes(node.id)) {
-      node.children.forEach(child => {
-        const nodeX = node.x || 0;
-        const nodeY = node.y || 0;
-        const childX = child.x || 0;
-        const childY = child.y || 0;
-        
-        lines.push({
-          from: { x: nodeX, y: nodeY + 20 },
-          to: { x: childX, y: childY - 10 }
-        });
-        
-        lines.push(...getConnectionLines(child));
-      });
-    }
-    
-    return lines;
-  };
-
-  const getAllNodes = (node: TreeNode): TreeNode[] => {
-    let nodes = [node];
-    if (node.children && expandedNodes.includes(node.id)) {
-      node.children.forEach(child => {
-        nodes.push(...getAllNodes(child));
-      });
-    }
-    return nodes;
-  };
-
-  const toggleNodeExpansion = (nodeId: string) => {
-    if (expandedNodes.includes(nodeId)) {
-      setExpandedNodes(expandedNodes.filter(id => id !== nodeId));
-    } else {
-      setExpandedNodes([...expandedNodes, nodeId]);
-    }
-  };
-
-  const resetTree = () => {
-    setExpandedNodes(['root']);
-    setSelectedPath([]);
-  };
-
-  const expandAll = () => {
-    const allNodeIds = ['root', 'car-door1', 'car-door2', 'car-door3', 
-                       'pick-door1-car1', 'pick-door1-car2', 'pick-door1-car3'];
-    setExpandedNodes(allNodeIds);
-  };
-
-  const calculateWinRates = () => {
-    const stayWins = 1;
-    const switchWins = 2;
-    const total = 3;
-    
-    return {
-      stay: (stayWins / total * 100).toFixed(1),
-      switch: (switchWins / total * 100).toFixed(1)
-    };
-  };
-
-  const winRates = calculateWinRates();
-
-  // Dynamic SVG height based on tree depth
-  const allNodes = getAllNodes(montyHallTree);
-  const maxY = Math.max(...allNodes.map(n => n.y || 0)) + 60; // padding
-  const svgHeight = Math.max(maxY, 320);
-
   return (
     <>
       <div className="education-container">
@@ -254,6 +52,18 @@ export default function EducationPage() {
             P(C1|M) = 1/3<br/>
             P(C2|M) = 2/3
           </p>
+
+          <h3>Interactive Decision Trees</h3>
+          <p>
+            Below you'll find interactive decision trees for different variations of the Monty Hall problem. 
+            Each tab shows how the probabilities change based on Monty's behavior:
+          </p>
+          <ul>
+            <li><strong>Standard:</strong> Classic Monty Hall where Monty always opens a door with a goat</li>
+            <li><strong>Evil:</strong> Monty opens the prize door if you didn't pick it (to make you lose)</li>
+            <li><strong>Secretive:</strong> Monty never opens any door, making switching a pure guess</li>
+            <li><strong>Custom:</strong> Behavior based on your simulation configuration</li>
+          </ul>
         </div>
 
         <div className='resourcesDiv'>
@@ -270,119 +80,7 @@ export default function EducationPage() {
         </div>
       </div>
 
-      <div className="tree-visualization-section">
-        <h1>Classic Monty Decision Tree</h1>
-        <p>
-          Click on the nodes below to explore all possible scenarios. The tree shows what happens in each case when you 
-          assume you always pick Door 1 initially.
-        </p>
-        
-        <div className="tree-controls">
-          <button onClick={resetTree} className="control-btn">Reset Tree</button>
-          <button onClick={expandAll} className="control-btn">Expand All</button>
-          <button 
-            onClick={() => setShowProbabilities(!showProbabilities)} 
-            className="control-btn"
-          >
-            {showProbabilities ? 'Hide' : 'Show'} Probabilities
-          </button>
-        </div>
-
-        <div className="tree-visualization">
-          <svg width="100%" height={svgHeight} viewBox={`0 0 600 ${svgHeight}`}>
-            {/* Draw connection lines */}
-            {getConnectionLines(montyHallTree).map((line, index) => (
-              <line
-                key={index}
-                x1={line.from.x}
-                y1={line.from.y}
-                x2={line.to.x}
-                y2={line.to.y}
-                stroke="#FFFFFF"
-                strokeWidth="2"
-                className="tree-connection"
-              />
-            ))}
-            
-            {/* Draw nodes */}
-            {allNodes.map(node => {
-              const nodeX = node.x || 0;
-              const nodeY = node.y || 0;
-              
-              return (
-                <g key={node.id}>
-                  <circle
-                    cx={nodeX}
-                    cy={nodeY}
-                    r="20"
-                    className={`tree-node-circle ${
-                      node.isWin === true ? 'win-node' : 
-                      node.isWin === false ? 'lose-node' : 
-                      'neutral-node'
-                    } ${expandedNodes.includes(node.id) ? 'expanded' : ''}`}
-                    onClick={() => toggleNodeExpansion(node.id)}
-                  />
-                  
-                  {node.children && (
-                    <text
-                      x={nodeX}
-                      y={nodeY + 5}
-                      textAnchor="middle"
-                      className="expand-indicator"
-                      onClick={() => toggleNodeExpansion(node.id)}
-                    >
-                      {expandedNodes.includes(node.id) ? '−' : '+'}
-                    </text>
-                  )}
-                  
-                  <text
-                    x={nodeX}
-                    y={nodeY - 30}
-                    textAnchor="middle"
-                    className="node-label"
-                  >
-                    {node.label}
-                  </text>
-                  
-                  {showProbabilities && node.probability && (
-                    <text
-                      x={nodeX}
-                      y={nodeY + 40}
-                      textAnchor="middle"
-                      className="node-probability"
-                    >
-                      ({node.probability})
-                    </text>
-                  )}
-                  
-                  {node.isWin !== undefined && (
-                    <text
-                      x={nodeX}
-                      y={nodeY + (showProbabilities && node.probability ? 55 : 40)}
-                      textAnchor="middle"
-                      className={`outcome-text ${node.isWin ? 'win-text' : 'lose-text'}`}
-                    >
-                      {node.isWin ? 'WIN!' : 'LOSE'}
-                    </text>
-                  )}
-                </g>
-              );
-            })}
-          </svg>
-        </div>
-
-        <div className="win-rates">
-          <h4>Overall Win Rates:</h4>
-          <div className="rate-comparison">
-            <div className="rate-item stay-rate">
-              <strong>Stay Strategy:</strong> {winRates.stay}% win rate (1 out of 3 scenarios)
-            </div>
-            <div className="rate-item switch-rate">
-              <strong>Switch Strategy:</strong> {winRates.switch}% win rate (2 out of 3 scenarios)
-            </div>
-          </div>
-        </div>
-      </div>
+      <MontyTreeTabs />
     </>
   );
 }

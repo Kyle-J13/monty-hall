@@ -39,9 +39,12 @@ export default function NavBar() {
       </div>
 
       {/* Placeholder nav items for future sections */}
-      <NavLink to="/resources" className="nav-link">Resources</NavLink>
-      <NavLink to="/education" className="nav-link">Education</NavLink>
       <NavLink to="/results" className="nav-link">Results</NavLink>
+      <NavLink to="/education" className="nav-link">Education</NavLink>
+      <NavLink to="/resources" className="nav-link">Resources</NavLink>
+      <NavLink to="/technicalResources" className="nav-link">Technical Resources</NavLink>
+      
+      
 
       {/* Updated About link */}
       <NavLink to="/about" className="nav-link">About</NavLink>

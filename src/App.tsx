@@ -10,6 +10,7 @@ import AboutPage from './pages/AboutPage/AboutPage';
 import ResourcesPage from './pages/ResourcesPage/ResourcesPage';
 import EducationPage from './pages/EducationPage/EducationPage';
 import ResultsPage from './pages/ResultsPage/ResultsPage';
+import TechnicalResources from './pages/Technical Resources/TechnicalResources';
 import './App.css';
 
 /**
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/play"         element={<PlayPage />} />
         <Route path="/sandbox"      element={<SandboxPage />} />
         <Route path="/sandbox/play" element={<SandboxPlayPage />} />
+        <Route path="/technicalResources" element={<TechnicalResources />} />
       </Routes>
     </Router>
   );

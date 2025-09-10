@@ -1,43 +1,47 @@
 # Monty Hall Learning Platform
 
-An interactive educational platform for exploring the Monty Hall problem and its many variants. The platform supports simulations with different types of Monty behaviors, user interaction, and data collection for research and educational purposes.
+An interactive educational platform for exploring the Monty Hall problem and its many variants. The platform supports both hands-on play and large-scale simulations with different Monty behaviors, user interaction, and research data collection.
 
-Planned deployment: https://monty.bram-hub.com
+Deployment target: https://monty-hall.bram-hub.com
 
 ---
 
 ## Overview
 
-This project provides an interface for simulating and analyzing variations of the Monty Hall game show problem. It plans to supports:
+This project provides a modern web interface for simulating and analyzing variations of the Monty Hall game show problem. It supports:
 
-- Interactive single game play
-- Iterative simulations under controlled conditions
-- Configurable Monty behaviors (Standard, Evil, Secretive, custom, etc.)
-- Basic player strategies
-- Data collection for cognitive psychology research
-- Educational content and mathematical explanations
+- Interactive single game play  
+- Simulation mode for running thousands of games  
+- Configurable Monty behaviors (Standard, Evil, Secretive, or fully customizable)  
+- Player strategies (Always Stay, Always Switch, Random)  
+- Data visualization with charts and outcome statistics  
+- Educational content and mathematical explanations  
 
 ---
 
 ## Technologies Used
 
-- React with TypeScript (frontend)
-- Vite (build tool)
-- Supabase (PostgreSQL database and API; for data collection)
-- Vercel (frontend deployment platform)
-- AWS Route53 and CDK (subdomain and DNS configuration)
+- React with TypeScript (frontend)  
+- Vite (development server and build tool)  
+- Node.js + Express (backend API for stats and data handling)  
+- Chart.js (data visualization)  
+- AWS Route53 and CDK (subdomain and DNS configuration)  
+- Supabase (planned: backend storage for research data)  
 
 ---
 
 ## Project Structure
 
-```
-src/
-├── components/   # Reusable UI elements
-├── pages/        # Views like PlayPage, ResearchPage, EducationPage
-├── logic/        # Game engine and Monty behavior logic
-├── supabase/     # Database logic
-```
+    monty-hall/
+    ├── backend/         # Node/Express backend (API endpoints, stats handling)
+    ├── public/          # Static assets and CNAME if using custom domain
+    ├── src/
+    │   ├── assets/      # Images and media
+    │   ├── components/  # Reusable UI and game components
+    │   ├── logic/       # Core Monty engine, probability tables, types
+    │   ├── pages/       # Route-based views (PlayPage, EducationPage, ResultsPage, etc.)
+    │   └── ...
+    └── vite.config.ts   # Vite config (proxy / base path)
 
 ---
 
@@ -45,53 +49,67 @@ src/
 
 ### Prerequisites
 
-- Node.js (v18 or later)
+- Node.js (v18 or later)  
+- npm (comes with Node)
 
 ### Setup Instructions
 
-```bash
-git clone repo
-cd monty-hall
-npm install
-npm run dev
-```
+Open **two terminals**:
 
-Then open your browser to the localhost link given
+**Terminal 1: Start backend**
+
+    cd backend
+    npm install   # first time only
+    node server.js
+
+Backend will run on: http://localhost:3000
+
+**Terminal 2: Start frontend**
+
+    cd monty-hall   # project root
+    npm install     # first time only
+    npm run dev
+
+Frontend will run on: http://localhost:5173 and proxy API requests to the backend via `/api` (configured in `vite.config.ts`).
+
+> If a "Public Base URL" is required in development, create a `.env.development` file in the repo root with:  
+> `PUBLIC_BASE_URL=http://localhost:5173`
 
 ---
 
 ## Project Goals
 
-- Enable interactive exploration of probability and decision theory
-- Demonstrate the impact of different Monty behaviors
-- Support simulations with configurable parameters
-- Collect structured gameplay data for research analysis
-- Provide educational explanations from both intuitive and formal perspectives
+- Enable interactive exploration of probability and decision theory  
+- Demonstrate the impact of different Monty behaviors  
+- Support simulations with configurable parameters  
+- Provide charts and statistics for outcome analysis  
+- Collect structured gameplay data for future research  
+- Offer an education section explaining the Monty Hall problem  
 
 ---
 
 ## Planned Features
 
-- Supabase integration for backend data storage
-- Custom Monty and player strategy builders
-- Data visualization with charts and graphs
-- Research dashboard with aggregated statistics
-- Comprehensive education section 
+- Supabase integration for persistent data storage  
+- Custom Monty and player strategy builders  
+- Advanced visualization and research dashboards  
+- Expanded educational resources  
 
 ---
 
 ## Background
 
-The Monty Hall problem is a well known probability puzzle where the counterintuitive nature of the correct strategy (to switch doors) makes it a widely discussed topic in statistics and cognitive science. This platform explores the classical problem and its many variants.
+The Monty Hall problem is a famous probability puzzle where the counterintuitive optimal strategy (to switch doors) makes it a central teaching tool in statistics and cognitive science.  
+This platform explores the classical problem and extends it to many variants for deeper learning.
 
-More information: [Monty Hall problem on Wikipedia](https://en.wikipedia.org/wiki/Monty_Hall_problem)
+More information: https://en.wikipedia.org/wiki/Monty_Hall_problem
 
 ---
 
 ## Maintainers
 
-- Project Lead: Professor Bram (bram-hub.com)
-- Developer: [Kyle-J13](https://github.com/Kyle-J13)
+- Project Lead: Professor Bram (bram-hub.com)  
+- Developers: Kyle-J13 (https://github.com/Kyle-J13), Ameyabarve123 (https://github.com/Ameyabarve123)
 
 ---
 
